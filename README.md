@@ -75,9 +75,10 @@ stored transcript is used unchanged in the run.
 | Voice | `muse-voice-transcribe-1.0` | Meta HTTP multipart | Fixed transcript; ignores speech content |
 | Match, rules, verify | Python | Local functions | Same implementation |
 
-**Real APIs have not been credential-tested in this build.** Keys were not
-supplied. Adapters were checked against official documentation and HTTP request
-shapes were tested with stubbed transports; this does not establish live access.
+The saved [live evaluation](eval_results_live.md) records extraction, redaction
+and drafting with `muse-spark-1.3` through Meta Responses on 2026-11-04.
+This run does not verify the Baseten open-weight model or real voice transcription.
+HTTP request shapes are also covered by tests with stubbed transports.
 
 Edit the ignored `.env` locally:
 
@@ -150,18 +151,33 @@ cd frontend
 npm.cmd run build
 ```
 
-Recorded offline results: **30/30 action accuracy; 31/31 cited IDs valid;
-30/30 full verifier passes; 12/30 recommended escalations; 0 agent errors.**
-All **30/30** require human review. The **47 tests** pass, including adversarial
+| Run | Action accuracy | Valid cited IDs | Full verifier passes | Escalations | Agent errors |
+|---|---|---|---|---|---|
+| [offline (fixtures)](eval_results.md) | 100.0% (30/30) | 100.0% (31/31) | 100.0% (30/30) | 12/30 | 0 |
+| [live (Meta API, 2026-11-04 IST)](eval_results_live.md) | 100.0% (30/30) | 100.0% (31/31) | 100.0% (30/30) | 12/30 | 0 |
+
+Both runs require human review for **30/30** cases. Tests cover adversarial
 citations, provider failure paths, redaction and stale-run approval.
-See [full evaluation and per-case results](eval_results.md).
+The saved live run used `muse-spark-1.3` for extraction, redaction and drafting;
+it does not demonstrate the Baseten open-weight path.
 
 **Offline evaluation is not model accuracy.** Extraction reads ground-truth
 sidecar fields and drafting uses deterministic fixtures. Rotated, blurred and
 low-contrast images exist, but offline results do not measure image robustness.
+The live run uses real extraction and drafting over 30 synthetic notices with
+synthetic policy labels. These numbers do not measure real-world performance.
 `python scripts/eval.py --live` requires all graph model keys, makes provider calls
-and saves separate `eval_results_live.md`, including failures. Regenerate the 30
-fixtures with `python gen_data.py`, then restart the API.
+and saves [eval_results_live.md](eval_results_live.md) atomically after every
+completed case, including failures. Offline runs similarly save `eval_results.md`.
+Use `--limit 10 --workers 4` for a smaller concurrent run; the default is four
+workers. Limits must allow at least three noisy images and multiple scenarios;
+the first N cases are kept when they already satisfy that coverage. Otherwise,
+the earliest cases meeting the coverage requirement are selected. HTTP 429 and
+timeout failures retry up to three times with exponential backoff and jitter.
+Partial reports contain only completed cases; their denominators and live caveat
+reflect that count. Ctrl+C saves completed work and cancels queued cases; active
+HTTP requests finish or time out. Regenerate fixtures with `python gen_data.py`,
+then restart the API.
 
 ## What was built during the hackathon
 
@@ -187,7 +203,8 @@ and timing must be checked by the entrant.
   patterns. Unrecognized names/unusual identifiers may survive. This is not a
   certified anonymizer. Do not use private data. Confidence scores are
   uncalibrated; mock scores are fixed fixtures, not probabilities.
-* Live API access, the requested Baseten `-1026` model and physical microphone
+* The saved live report verifies the Meta-model workflow on synthetic data only.
+  Baseten's requested `-1026` model, live voice transcription and physical microphone
   behavior remain unverified. Browser/app automation was unavailable during build,
   so visual/browser interaction QA is outstanding; frontend compilation passed.
 * No reconciliation, fraud scoring, routing, SAM integration, auth, database,
