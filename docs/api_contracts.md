@@ -17,7 +17,11 @@ credentialed request succeeded. No credentials were supplied at build time.
   Confirm model entitlement and exact base URL in your dashboard. No silent alias.
 * Voice: https://github.com/meta-models/meta-model-cookbook/tree/main/06_muse_voice/01_voice_api_fundamentals
   HTTP recording endpoint `/v1/asr/transcribe`, model muse-voice-transcribe-1.0.
-  Implementation request contract will be checked against cookbook utils.py.
+  Checked cookbook utils.py: multipart `request` part is JSON with `model`,
+  `mode: PUSH_TO_TALK`, `audioEncoding: WAV`; separate `audio` part holds the WAV.
+  Bearer Authorization header; response `transcript` string. Mono 16-bit PCM
+  WAV at 16 or 24 kHz. Local app restricts to 120 seconds / 10 MB (stricter than
+  provider 10 minutes / 32 MB). Live execution remains unverified.
 
 Live provider behavior, available models, account access and key validity remain
 unverified until check_api is run with real credentials. Provider errors never
