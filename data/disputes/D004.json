@@ -1,0 +1,14 @@
+{
+  "fields": {
+    "transaction_id": "SYN-TXN-0004",
+    "amount": "1398",
+    "date": "2026-06-01",
+    "reason": "outside window",
+    "customer_name": "Synthetic Person 04",
+    "phone": "0000000004",
+    "card": "0000 0000 0000 0004",
+    "upi_id": "person4@synthetic"
+  },
+  "expected_action": "ESCALATE",
+  "scenario": "outside_window"
+}

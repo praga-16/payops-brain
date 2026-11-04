@@ -1,0 +1,58 @@
+[
+  {
+    "id": "D001",
+    "title": "Duplicate Debit",
+    "rail": "CARD",
+    "amount": "1287",
+    "received_date": "2026-11-04",
+    "image": "/notices/D001.png"
+  },
+  {
+    "id": "D002",
+    "title": "Already Refunded",
+    "rail": "BIN",
+    "amount": "1324",
+    "received_date": "2026-11-04",
+    "image": "/notices/D002.png"
+  },
+  {
+    "id": "D003",
+    "title": "Amount Mismatch",
+    "rail": "UPI",
+    "amount": "1361",
+    "received_date": "2026-11-04",
+    "image": "/notices/D003.png"
+  },
+  {
+    "id": "D004",
+    "title": "Outside Window",
+    "rail": "CARD",
+    "amount": "1398",
+    "received_date": "2026-11-04",
+    "image": "/notices/D004.png"
+  },
+  {
+    "id": "D005",
+    "title": "Failed But Debited",
+    "rail": "BIN",
+    "amount": "1435",
+    "received_date": "2026-11-04",
+    "image": "/notices/D005.png"
+  },
+  {
+    "id": "D006",
+    "title": "Unknown Txn",
+    "rail": "UPI",
+    "amount": "1472",
+    "received_date": "2026-11-04",
+    "image": "/notices/D006.png"
+  },
+  {
+    "id": "D007",
+    "title": "Clean",
+    "rail": "CARD",
+    "amount": "1509",
+    "received_date": "2026-11-04",
+    "image": "/notices/D007.png"
+  }
+]
