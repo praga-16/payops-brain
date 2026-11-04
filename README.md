@@ -220,3 +220,4 @@ and timing must be checked by the entrant.
 `POST /disputes/{id}/verify-demo` (injected citation on a copy).
 Omitting `note` uses the uploaded voice transcript; an explicit empty string
 clears it for that run. Decisions reject stale IDs and repeated review.
+# payops-brain
