@@ -4,7 +4,6 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from backend.config import ROOT, model_config
 from backend.graph import read_data, run_case
 from backend.schemas import RunRequest, DecisionRequest
@@ -67,8 +66,9 @@ def run(did: str, body: RunRequest):
         snapshot = {k: deepcopy(case[k]) for k in ('id', 'title', 'rail', 'amount', 'received_date', 'image')}
         voice = deepcopy(case.get('voice'))
     try:
-        result = run_case(snapshot, note=body.note)
-        if voice and body.note == voice['transcript']:
+        note = body.note if body.note is not None else voice['transcript'] if voice else ''
+        result = run_case(snapshot, note=note)
+        if voice and note == voice['transcript']:
             result['trace'].insert(0, {'step': 'voice', 'model': voice['model'], 'mode': voice['mode'],
                                       'status': 'completed', 'duration_ms': 0,
                                       'detail': {'transcript': voice['transcript'], 'source': 'previous audio upload'}})

@@ -45,8 +45,9 @@ def test_voice_and_demo(client):
     voice=client.post('/disputes/D001/voice',files={'audio':('note.wav',wav_bytes(),'audio/wav')})
     assert voice.status_code==200 and voice.json()['mode']=='mock'
     assert client.post('/disputes/D001/verify-demo').status_code==409
-    result=client.post('/disputes/D001/run',json={'note':voice.json()['transcript']}).json()
+    result=client.post('/disputes/D001/run',json={}).json()
     assert result['trace'][0]['step']=='voice'
+    assert result['note']==voice.json()['transcript']
     demo=client.post('/disputes/D001/verify-demo').json()
     assert not demo['verification']['passed'] and demo['action']=='ESCALATE'
     assert client.get('/disputes/D001').json()['result']==result

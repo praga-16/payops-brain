@@ -11,3 +11,4 @@ uploads/
 *.log
 .playwright/
 .npm-cache/
+log/

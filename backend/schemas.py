@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 from typing import Literal
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, Field, ConfigDict
 
 Action = Literal['REFUND', 'NO_ACTION', 'ESCALATE']
 
@@ -36,7 +36,7 @@ class Draft(BaseModel):
 
 
 class RunRequest(BaseModel):
-    note: str = Field(default='', max_length=2000)
+    note: str | None = Field(default=None, max_length=2000)
 
 
 class DecisionRequest(BaseModel):
