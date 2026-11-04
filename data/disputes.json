@@ -54,5 +54,189 @@
     "amount": "1509",
     "received_date": "2026-11-04",
     "image": "/notices/D007.png"
+  },
+  {
+    "id": "D008",
+    "title": "Duplicate Debit",
+    "rail": "BIN",
+    "amount": "1546",
+    "received_date": "2026-11-04",
+    "image": "/notices/D008.png"
+  },
+  {
+    "id": "D009",
+    "title": "Already Refunded",
+    "rail": "UPI",
+    "amount": "1583",
+    "received_date": "2026-11-04",
+    "image": "/notices/D009.png"
+  },
+  {
+    "id": "D010",
+    "title": "Amount Mismatch",
+    "rail": "CARD",
+    "amount": "1620",
+    "received_date": "2026-11-04",
+    "image": "/notices/D010.png"
+  },
+  {
+    "id": "D011",
+    "title": "Outside Window",
+    "rail": "BIN",
+    "amount": "1657",
+    "received_date": "2026-11-04",
+    "image": "/notices/D011.png"
+  },
+  {
+    "id": "D012",
+    "title": "Failed But Debited",
+    "rail": "UPI",
+    "amount": "1694",
+    "received_date": "2026-11-04",
+    "image": "/notices/D012.png"
+  },
+  {
+    "id": "D013",
+    "title": "Unknown Txn",
+    "rail": "CARD",
+    "amount": "1731",
+    "received_date": "2026-11-04",
+    "image": "/notices/D013.png"
+  },
+  {
+    "id": "D014",
+    "title": "Clean",
+    "rail": "BIN",
+    "amount": "1768",
+    "received_date": "2026-11-04",
+    "image": "/notices/D014.png"
+  },
+  {
+    "id": "D015",
+    "title": "Duplicate Debit",
+    "rail": "UPI",
+    "amount": "1805",
+    "received_date": "2026-11-04",
+    "image": "/notices/D015.png"
+  },
+  {
+    "id": "D016",
+    "title": "Already Refunded",
+    "rail": "CARD",
+    "amount": "1842",
+    "received_date": "2026-11-04",
+    "image": "/notices/D016.png"
+  },
+  {
+    "id": "D017",
+    "title": "Amount Mismatch",
+    "rail": "BIN",
+    "amount": "1879",
+    "received_date": "2026-11-04",
+    "image": "/notices/D017.png"
+  },
+  {
+    "id": "D018",
+    "title": "Outside Window",
+    "rail": "UPI",
+    "amount": "1916",
+    "received_date": "2026-11-04",
+    "image": "/notices/D018.png"
+  },
+  {
+    "id": "D019",
+    "title": "Failed But Debited",
+    "rail": "CARD",
+    "amount": "1953",
+    "received_date": "2026-11-04",
+    "image": "/notices/D019.png"
+  },
+  {
+    "id": "D020",
+    "title": "Unknown Txn",
+    "rail": "BIN",
+    "amount": "1990",
+    "received_date": "2026-11-04",
+    "image": "/notices/D020.png"
+  },
+  {
+    "id": "D021",
+    "title": "Clean",
+    "rail": "UPI",
+    "amount": "2027",
+    "received_date": "2026-11-04",
+    "image": "/notices/D021.png"
+  },
+  {
+    "id": "D022",
+    "title": "Duplicate Debit",
+    "rail": "CARD",
+    "amount": "2064",
+    "received_date": "2026-11-04",
+    "image": "/notices/D022.png"
+  },
+  {
+    "id": "D023",
+    "title": "Already Refunded",
+    "rail": "BIN",
+    "amount": "2101",
+    "received_date": "2026-11-04",
+    "image": "/notices/D023.png"
+  },
+  {
+    "id": "D024",
+    "title": "Amount Mismatch",
+    "rail": "UPI",
+    "amount": "2138",
+    "received_date": "2026-11-04",
+    "image": "/notices/D024.png"
+  },
+  {
+    "id": "D025",
+    "title": "Outside Window",
+    "rail": "CARD",
+    "amount": "2175",
+    "received_date": "2026-11-04",
+    "image": "/notices/D025.png"
+  },
+  {
+    "id": "D026",
+    "title": "Failed But Debited",
+    "rail": "BIN",
+    "amount": "2212",
+    "received_date": "2026-11-04",
+    "image": "/notices/D026.png"
+  },
+  {
+    "id": "D027",
+    "title": "Unknown Txn",
+    "rail": "UPI",
+    "amount": "2249",
+    "received_date": "2026-11-04",
+    "image": "/notices/D027.png"
+  },
+  {
+    "id": "D028",
+    "title": "Clean",
+    "rail": "CARD",
+    "amount": "2286",
+    "received_date": "2026-11-04",
+    "image": "/notices/D028.png"
+  },
+  {
+    "id": "D029",
+    "title": "Duplicate Debit",
+    "rail": "BIN",
+    "amount": "2323",
+    "received_date": "2026-11-04",
+    "image": "/notices/D029.png"
+  },
+  {
+    "id": "D030",
+    "title": "Already Refunded",
+    "rail": "UPI",
+    "amount": "2360",
+    "received_date": "2026-11-04",
+    "image": "/notices/D030.png"
   }
 ]

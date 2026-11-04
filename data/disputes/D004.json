@@ -10,5 +10,6 @@
     "upi_id": "person4@synthetic"
   },
   "expected_action": "ESCALATE",
-  "scenario": "outside_window"
+  "scenario": "outside_window",
+  "image_variant": "clean"
 }

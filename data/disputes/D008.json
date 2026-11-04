@@ -1,0 +1,15 @@
+{
+  "fields": {
+    "transaction_id": "SYN-TXN-0008",
+    "amount": "1546",
+    "date": "2026-11-01",
+    "reason": "duplicate debit",
+    "customer_name": "Synthetic Person 08",
+    "phone": "0000000008",
+    "card": "0000 0000 0000 0008",
+    "upi_id": "person8@synthetic"
+  },
+  "expected_action": "REFUND",
+  "scenario": "duplicate_debit",
+  "image_variant": "clean"
+}

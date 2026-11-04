@@ -1,0 +1,15 @@
+{
+  "fields": {
+    "transaction_id": "SYN-TXN-0012",
+    "amount": "1694",
+    "date": "2026-11-01",
+    "reason": "failed but debited",
+    "customer_name": "Synthetic Person 12",
+    "phone": "0000000012",
+    "card": "0000 0000 0000 0012",
+    "upi_id": "person12@synthetic"
+  },
+  "expected_action": "REFUND",
+  "scenario": "failed_but_debited",
+  "image_variant": "clean"
+}

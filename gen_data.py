@@ -1,12 +1,12 @@
 """Deterministic synthetic fixtures. No real people, companies or transactions."""
 import json
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 
 ROOT = Path(__file__).resolve().parent
 
 
-def generate(count=7):
+def generate(count=30):
     folder = ROOT / 'data' / 'disputes'
     folder.mkdir(parents=True, exist_ok=True)
     scenarios = ['duplicate_debit', 'already_refunded', 'amount_mismatch',
@@ -34,7 +34,8 @@ def generate(count=7):
                                card=fields['card'], upi_id=fields['upi_id']))
             if slot == 0:
                 ledger.append({**ledger[-1], 'id': f'L{i:03}B'})
-        fixture = {'fields': fields, 'expected_action': actions[slot], 'scenario': scenario}
+        noise = ['rotated', 'blurred', 'low_contrast', 'clean'][(i - 1) % 4]
+        fixture = {'fields': fields, 'expected_action': actions[slot], 'scenario': scenario, 'image_variant': noise}
         (folder / f'{did}.json').write_text(json.dumps(fixture, indent=2), encoding='utf-8')
         image = Image.new('RGB', (1000, 680), '#f3f1e9')
         draw = ImageDraw.Draw(image)
@@ -45,6 +46,12 @@ def generate(count=7):
                  f'Card: {fields["card"]}', f'UPI: {fields["upi_id"]}']
         for n, line in enumerate(lines):
             draw.text((48, 40 + n * 50), line, font=font, fill='#243640')
+        if noise == 'rotated':
+            image = image.rotate(2.5, resample=Image.Resampling.BICUBIC, fillcolor='#deded2')
+        elif noise == 'blurred':
+            image = image.filter(ImageFilter.GaussianBlur(1.2))
+        elif noise == 'low_contrast':
+            image = ImageEnhance.Contrast(image).enhance(0.35)
         image.save(folder / f'{did}.png')
         disputes.append(dict(id=did, title=fields['reason'].title(), rail=['UPI', 'CARD', 'BIN'][i % 3],
                              amount=str(amount), received_date='2026-11-04', image=f'/notices/{did}.png'))

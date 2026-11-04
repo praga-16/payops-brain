@@ -10,5 +10,6 @@
     "upi_id": "person2@synthetic"
   },
   "expected_action": "NO_ACTION",
-  "scenario": "already_refunded"
+  "scenario": "already_refunded",
+  "image_variant": "blurred"
 }

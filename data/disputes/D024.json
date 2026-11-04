@@ -1,0 +1,15 @@
+{
+  "fields": {
+    "transaction_id": "SYN-TXN-0024",
+    "amount": "2138",
+    "date": "2026-11-01",
+    "reason": "amount mismatch",
+    "customer_name": "Synthetic Person 24",
+    "phone": "0000000024",
+    "card": "0000 0000 0000 0024",
+    "upi_id": "person24@synthetic"
+  },
+  "expected_action": "ESCALATE",
+  "scenario": "amount_mismatch",
+  "image_variant": "clean"
+}

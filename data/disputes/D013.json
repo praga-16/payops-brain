@@ -1,0 +1,15 @@
+{
+  "fields": {
+    "transaction_id": "SYN-TXN-0013",
+    "amount": "1731",
+    "date": "2026-11-01",
+    "reason": "unknown txn",
+    "customer_name": "Synthetic Person 13",
+    "phone": "0000000013",
+    "card": "0000 0000 0000 0013",
+    "upi_id": "person13@synthetic"
+  },
+  "expected_action": "ESCALATE",
+  "scenario": "unknown_txn",
+  "image_variant": "rotated"
+}

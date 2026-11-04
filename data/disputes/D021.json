@@ -1,0 +1,15 @@
+{
+  "fields": {
+    "transaction_id": "SYN-TXN-0021",
+    "amount": "2027",
+    "date": "2026-11-01",
+    "reason": "clean",
+    "customer_name": "Synthetic Person 21",
+    "phone": "0000000021",
+    "card": "0000 0000 0000 0021",
+    "upi_id": "person21@synthetic"
+  },
+  "expected_action": "NO_ACTION",
+  "scenario": "clean",
+  "image_variant": "rotated"
+}

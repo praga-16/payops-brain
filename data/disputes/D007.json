@@ -10,5 +10,6 @@
     "upi_id": "person7@synthetic"
   },
   "expected_action": "NO_ACTION",
-  "scenario": "clean"
+  "scenario": "clean",
+  "image_variant": "low_contrast"
 }

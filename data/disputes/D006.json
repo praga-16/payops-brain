@@ -10,5 +10,6 @@
     "upi_id": "person6@synthetic"
   },
   "expected_action": "ESCALATE",
-  "scenario": "unknown_txn"
+  "scenario": "unknown_txn",
+  "image_variant": "blurred"
 }

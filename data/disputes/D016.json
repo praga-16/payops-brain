@@ -1,0 +1,15 @@
+{
+  "fields": {
+    "transaction_id": "SYN-TXN-0016",
+    "amount": "1842",
+    "date": "2026-11-01",
+    "reason": "already refunded",
+    "customer_name": "Synthetic Person 16",
+    "phone": "0000000016",
+    "card": "0000 0000 0000 0016",
+    "upi_id": "person16@synthetic"
+  },
+  "expected_action": "NO_ACTION",
+  "scenario": "already_refunded",
+  "image_variant": "clean"
+}

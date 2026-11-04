@@ -10,5 +10,6 @@
     "upi_id": "person1@synthetic"
   },
   "expected_action": "REFUND",
-  "scenario": "duplicate_debit"
+  "scenario": "duplicate_debit",
+  "image_variant": "rotated"
 }
