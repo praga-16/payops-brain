@@ -2,6 +2,7 @@ from datetime import date
 from decimal import Decimal
 from typing import Literal
 from pydantic import BaseModel, Field, ConfigDict
+from backend.decision import Decision  # Shared control-tower contract; legacy schemas remain compatible.
 
 Action = Literal['REFUND', 'NO_ACTION', 'ESCALATE']
 

@@ -16,7 +16,7 @@ def merchant_facts(merchant_id: str, path=None, transaction_id: str | None = Non
     settlements=records('settlements',path)
     matched=[(tx,match(tx,settlements)[0]) for tx in transactions]
     ids={r['id'] for r in transactions}
-    dispute_count=sum(r['transaction_id'] in ids for r in records('disputes',path))
+    dispute_count=sum(r['transaction_id'] in ids and r['status']=='OPEN' for r in records('disputes',path))
     gross=sum(t['amount_paise'] for t in transactions)
     fee=sum(t['fee_paise'] for t in transactions)
     net=sum(s['amount_paise'] for _,rows in matched for s in rows)

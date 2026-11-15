@@ -8,7 +8,7 @@ import sqlite3
 import tempfile
 from contextlib import closing
 
-import numpy as np
+import pandas as pd
 from sklearn.metrics import roc_auc_score
 
 from backend import audit
@@ -78,6 +78,9 @@ def run_evaluation(*, count: int = 512, test_seed: int = 916, persist: bool = Tr
                 'transaction_count':count,'case_count':samples['assisted']['total_agent_cases'],
                 'baseline':results['baseline'],'assisted':results['assisted'],'sample_counts':samples,
                 'confidence_intervals':intervals,
+                'break_confusion_matrix':pd.crosstab(
+                    pd.Series([truth[r['transaction_id']]['break_type'] for r in assisted],name='actual'),
+                    pd.Series([r['ml_break_type'] for r in assisted],name='predicted')).to_dict(),
                 'training':'Match GB: 1,200 synthetic pairs seed 1701; break GB: 900 synthetic vectors seed 1702; '
                            'dispute logistic: 2,000 synthetic outcomes seed 732; Isolation Forest: 800 normal vectors seed 991. '
                            'No holdout ledger IDs or labels are used in training or inference.',

@@ -105,3 +105,15 @@ limitations. 115 tests passed. The simulator now includes normalized and noisy
 references to exercise assisted matching; Windows SQLite handle cleanup was fixed.
 Optional routing/KYC/credit agents are not implemented; they are outside the
 required eight phases and add no validated value to this demo.
+
+## Final packaging and validation
+
+Compose serves FastAPI plus nginx/React with a persistent volume, healthcheck,
+runtime-only environment keys and an unprivileged backend user. A locked Python
+environment and optional ignored wheel cache handle slow package downloads.
+Make install/test/seed/demo/eval targets were executed with GNU Make 4.2.1.
+Local ordinary suite: 118 passed, 1 Docker opt-in skip. Docker-enabled host suite:
+119 passed. Container ordinary suite: 118 passed, 1 skipped. Three Playwright
+tests passed against both Vite and Docker nginx. Live Sarvam grounded checks passed
+in English, Hindi and Tamil. Both evaluations, smoke, pip check and HTTP acceptance
+checks passed. Meta/Baseten/real voice remain unverified. See implementation-report.md.

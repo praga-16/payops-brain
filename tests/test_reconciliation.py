@@ -43,3 +43,16 @@ def test_wrong_amount_cannot_auto_resolve(tmp_path):
         c.execute('UPDATE settlements SET amount_paise=1')
     results=analyze(path)
     assert not any(r['decision']['action']=='RECONCILE' for r in results)
+
+
+def test_cross_transaction_citation_and_amount_rejected_atomically(tmp_path):
+    path=tmp_path/'ledger.db';seed(32,42,path)
+    result=analyze(path)[0]
+    unrelated=deepcopy(result)
+    unrelated['decision']['evidence'].append('SIM-42-32-T00001')
+    with pytest.raises(ValueError,match='unrelated'):
+        persist([unrelated],path)
+    wrong=deepcopy(result);wrong['decision']['amount']='1.00'
+    with pytest.raises(ValueError,match='amount'):
+        persist([wrong],path)
+    assert queue(path)==[]

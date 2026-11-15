@@ -119,7 +119,13 @@ class ChatBody(BaseModel):
 
 @router.post('/merchant-assistant/chat')
 def merchant_chat(body: ChatBody):
-    return chat(body.merchant_id,body.question,body.language,transaction_id=body.transaction_id)
+    result=chat(body.merchant_id,body.question,body.language,transaction_id=body.transaction_id)
+    with connect() as conn:
+        audit.append(conn,'MERCHANT_EXPLANATION',body.merchant_id,
+                     {'provider':result['provider'],'mode':result['mode'],'language':body.language,
+                      'grounded':result['grounded'],'routed_to_analyst':result['routed_to_analyst'],
+                      'evidence':(result.get('facts') or {}).get('evidence',[])})
+    return result
 
 
 def guarded(fn, *args, **kwargs):

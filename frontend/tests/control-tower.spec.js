@@ -30,7 +30,7 @@ test('simulator, chargeback review, feedback, audit and original dispute workflo
   await expect(page.getByText(/HUMAN APPROVE/).first()).toBeVisible();
   await page.getByRole('navigation').getByRole('button',{name:'Disputes',exact:true}).click();
   await page.getByRole('button',{name:'Open original notice workflow'}).click();
-  await page.getByRole('button',{name:'Run agent',exact:true}).click();
+  await page.getByRole('button',{name:/^Run (agent|again)$/}).click();
   await expect(page.getByRole('heading',{name:'Every claim checked against the ledger'})).toBeVisible();
   await page.screenshot({path:'test-results/original-workflow.png',fullPage:true});
   expect(errors).toEqual([]);
@@ -42,4 +42,29 @@ test('mobile dashboard stays within viewport',async({page})=>{
   await expect(page.getByLabel('Batch size')).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(392);
   await page.screenshot({path:'test-results/mobile.png',fullPage:true});
+});
+
+test('ledger rails, explicit fraud approval and measured evaluation',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');
+  const nav=page.getByRole('navigation');
+  await nav.getByRole('button',{name:'Transactions',exact:true}).click();
+  for(const rail of ['CARD','UPI','NET BANKING'])await expect(page.getByRole('cell',{name:rail,exact:true}).first()).toBeVisible();
+  const alerts=await (await page.request.get('/api/fraud/alerts')).json();
+  const alert=alerts.find(a=>!a.suggested);
+  expect(alert).toBeTruthy();
+  await nav.getByRole('button',{name:'Fraud',exact:true}).click();
+  await page.getByRole('button',{name:'Open '+alert.case_id,exact:true}).click();
+  const dialog=page.getByRole('dialog');
+  await dialog.getByRole('button',{name:'Suggest kill switch',exact:true}).click();
+  await expect(dialog.getByText('Suggestion recorded. Explicit human approval is required.')).toBeVisible();
+  await expect(dialog.getByRole('button',{name:'Record human kill-switch approval'})).toBeDisabled();
+  await dialog.getByRole('checkbox').check();
+  await dialog.getByRole('button',{name:'Record human kill-switch approval'}).click();
+  await expect(dialog.getByText('Human approval recorded. Processing remains unchanged.')).toBeVisible();
+  await dialog.getByRole('button',{name:'Close case'}).click();
+  await nav.getByRole('button',{name:'Evaluation',exact:true}).click();
+  await page.getByRole('button',{name:'Run evaluation',exact:true}).click();
+  await expect(page.getByText('Evaluation completed on a separate synthetic holdout.')).toBeVisible({timeout:60000});
+  await expect(page.getByRole('cell',{name:'break classification accuracy',exact:true})).toBeVisible();
+  expect(errors).toEqual([]);
 });

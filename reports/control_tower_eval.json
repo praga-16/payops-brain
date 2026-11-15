@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-11-15T06:16:05.345957+00:00",
+  "created_at": "2026-11-15T06:34:32.820981+00:00",
   "test_seed": 916,
   "as_of": "2026-11-15T00:00:00+00:00",
   "transaction_count": 512,
@@ -80,6 +80,88 @@
         0,
         0.01686083665142801
       ]
+    }
+  },
+  "break_confusion_matrix": {
+    "CHARGEBACK": {
+      "CHARGEBACK": 32,
+      "CLEAN": 0,
+      "DUPLICATE_SETTLEMENT": 0,
+      "FEE_MISMATCH": 0,
+      "FRAUD_SUSPECTED": 0,
+      "MISSING_SETTLEMENT": 0,
+      "OVER_REFUND": 0,
+      "SHORT_SETTLEMENT": 0
+    },
+    "CLEAN": {
+      "CHARGEBACK": 0,
+      "CLEAN": 288,
+      "DUPLICATE_SETTLEMENT": 0,
+      "FEE_MISMATCH": 0,
+      "FRAUD_SUSPECTED": 0,
+      "MISSING_SETTLEMENT": 0,
+      "OVER_REFUND": 0,
+      "SHORT_SETTLEMENT": 0
+    },
+    "DUPLICATE_SETTLEMENT": {
+      "CHARGEBACK": 0,
+      "CLEAN": 0,
+      "DUPLICATE_SETTLEMENT": 32,
+      "FEE_MISMATCH": 0,
+      "FRAUD_SUSPECTED": 0,
+      "MISSING_SETTLEMENT": 0,
+      "OVER_REFUND": 0,
+      "SHORT_SETTLEMENT": 0
+    },
+    "FEE_MISMATCH": {
+      "CHARGEBACK": 0,
+      "CLEAN": 0,
+      "DUPLICATE_SETTLEMENT": 0,
+      "FEE_MISMATCH": 32,
+      "FRAUD_SUSPECTED": 0,
+      "MISSING_SETTLEMENT": 0,
+      "OVER_REFUND": 0,
+      "SHORT_SETTLEMENT": 0
+    },
+    "FRAUD_SUSPECTED": {
+      "CHARGEBACK": 0,
+      "CLEAN": 0,
+      "DUPLICATE_SETTLEMENT": 0,
+      "FEE_MISMATCH": 0,
+      "FRAUD_SUSPECTED": 32,
+      "MISSING_SETTLEMENT": 0,
+      "OVER_REFUND": 0,
+      "SHORT_SETTLEMENT": 0
+    },
+    "MISSING_SETTLEMENT": {
+      "CHARGEBACK": 0,
+      "CLEAN": 0,
+      "DUPLICATE_SETTLEMENT": 0,
+      "FEE_MISMATCH": 0,
+      "FRAUD_SUSPECTED": 0,
+      "MISSING_SETTLEMENT": 32,
+      "OVER_REFUND": 0,
+      "SHORT_SETTLEMENT": 0
+    },
+    "OVER_REFUND": {
+      "CHARGEBACK": 0,
+      "CLEAN": 0,
+      "DUPLICATE_SETTLEMENT": 0,
+      "FEE_MISMATCH": 0,
+      "FRAUD_SUSPECTED": 0,
+      "MISSING_SETTLEMENT": 0,
+      "OVER_REFUND": 32,
+      "SHORT_SETTLEMENT": 0
+    },
+    "SHORT_SETTLEMENT": {
+      "CHARGEBACK": 0,
+      "CLEAN": 0,
+      "DUPLICATE_SETTLEMENT": 0,
+      "FEE_MISMATCH": 0,
+      "FRAUD_SUSPECTED": 0,
+      "MISSING_SETTLEMENT": 0,
+      "OVER_REFUND": 0,
+      "SHORT_SETTLEMENT": 32
     }
   },
   "training": "Match GB: 1,200 synthetic pairs seed 1701; break GB: 900 synthetic vectors seed 1702; dispute logistic: 2,000 synthetic outcomes seed 732; Isolation Forest: 800 normal vectors seed 991. No holdout ledger IDs or labels are used in training or inference.",

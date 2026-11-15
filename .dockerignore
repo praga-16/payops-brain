@@ -1,0 +1,12 @@
+.git
+.env
+.env.*
+.venv
+runtime
+frontend/*
+!frontend/nginx.conf
+reports
+__pycache__
+.pytest_cache
+**/__pycache__
+*.log

@@ -10,11 +10,20 @@ from backend.ledger import connect, utcnow
 def save_result(conn, result: dict) -> bool:
     decision=Decision.model_validate(result['decision'])
     # All agents must cite real operational rows; no opaque model citations.
-    available=set()
+    available={result['transaction_id']}
     for table in ('transactions','settlements','refunds','fees','disputes'):
-        available.update(row[0] for row in conn.execute(f'SELECT id FROM {table}'))
-    if not set(decision.evidence)<=available:
-        raise ValueError('Agent cited nonexistent evidence')
+        if table=='transactions':continue
+        available.update(row[0] for row in conn.execute(f'SELECT id FROM {table} WHERE transaction_id=?',
+                                                       (result['transaction_id'],)))
+    # Reference-only settlements have no FK yet; verify them using the matcher.
+    from backend.reconciliation import match
+    tx_row=conn.execute('SELECT * FROM transactions WHERE id=?',(result['transaction_id'],)).fetchone()
+    if tx_row:
+        matched,_,_=match(dict(tx_row),[dict(r) for r in conn.execute('SELECT * FROM settlements')])
+        available.update(r['id'] for r in matched)
+    if (not set(decision.evidence)<=available or result['transaction_id'] not in decision.evidence or
+            len(set(decision.evidence))!=len(decision.evidence)):
+        raise ValueError('Agent cited nonexistent, unrelated or duplicate evidence')
     tx=conn.execute('SELECT amount_paise FROM transactions WHERE id=?',(result['transaction_id'],)).fetchone()
     if not tx or decision.amount*100 != tx[0]:
         raise ValueError('Decision amount must equal ledger transaction amount')
@@ -29,6 +38,14 @@ def save_result(conn, result: dict) -> bool:
         result['decision']=decision.model_dump(mode='json')
         result['calibration_feedback_count']=model['feedback_count']
     tier=Policy.configured().gate(decision)
+    policy=Policy.configured()
+    snapshot={'auto':policy.auto,'review':policy.review,'high_value':str(policy.high_value),'write_off':str(policy.write_off)}
+    previous=conn.execute("SELECT payload FROM model_registry WHERE name='review_policy' ORDER BY id DESC LIMIT 1").fetchone()
+    if previous is None or json.loads(previous[0])!=snapshot:
+        conn.execute('INSERT INTO model_registry(name,payload,created_at) VALUES(?,?,?)',
+                     ('review_policy',json.dumps(snapshot),utcnow()))
+        audit.append(conn,'POLICY_SNAPSHOT','review_policy',{'policy':snapshot,
+                     'source':'operator environment configuration; application cannot auto-change policy'})
     now=utcnow()
     conn.execute('INSERT INTO agent_decisions VALUES(?,?,?,?,?)',
                  (decision.case_id,result['agent'],result['transaction_id'],json.dumps(result),now))
@@ -54,6 +71,8 @@ def queue(path=None) -> list[dict]:
             correction=conn.execute('SELECT corrected FROM human_feedback WHERE case_id=? ORDER BY id DESC LIMIT 1',
                                     (r['case_id'],)).fetchone()
             result['effective_decision']=json.loads(correction[0]) if correction else result['decision']
+            restriction=conn.execute('SELECT suggested,approved FROM fraud_alerts WHERE case_id=?',(r['case_id'],)).fetchone()
+            if restriction:result['restriction']=dict(restriction)
             results.append(result)
         return results
 

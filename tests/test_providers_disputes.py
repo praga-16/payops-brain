@@ -29,6 +29,8 @@ def test_sarvam_contract(monkeypatch):
     assert url=='https://api.sarvam.ai/v1/chat/completions'
     assert kw['headers']=={'api-subscription-key':'test-key-not-real'}
     assert kw['json']['model']=='sarvam-105b'
+    assert kw['json']['reasoning_effort']=='low'
+    assert kw['json']['response_format']=={'type':'json_object'}
     assert 'test-key-not-real' not in json.dumps(result)
 
 
@@ -64,3 +66,13 @@ def test_dispute_evidence_and_deadline(tmp_path):
     expired=analyze(path,now=datetime(2027,1,1,tzinfo=timezone.utc))
     assert all(r['overdue'] and r['decision']['action']=='ACCEPT' for r in expired)
     assert checklist_score({})==0
+
+
+def test_meta_null_response_escalates_safely(monkeypatch):
+    from backend.meta_client import call_json,ModelError
+    monkeypatch.setenv('PAYOPS_MOCK','false')
+    monkeypatch.setenv('DRAFT_API_KEY','fake-key')
+    monkeypatch.setenv('DRAFT_PROTOCOL','chat')
+    monkeypatch.setattr(httpx.Client,'post',lambda *a,**k:httpx.Response(200,json={'choices':[{'message':{'content':None}}]}))
+    with pytest.raises(ModelError,match='invalid JSON'):
+        call_json('draft','Return JSON')

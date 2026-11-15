@@ -1,223 +1,312 @@
 # PayOps Brain
 
-**Read a dispute. Ground the recommendation. Keep a human in charge.**
+**A synthetic payment operations control tower: one ledger, reviewable agents, human financial control.**
 
-A local payments-operations demo built from scratch for the Meta Global AI
-Developer Hackathon. A synthetic notice image enters a LangGraph workflow. The
-agent extracts fields, matches ledger records, applies demo policy, redacts draft
-context, proposes structured claims, and verifies them before showing an
-evidence-bound reply. An operator approves or rejects every recommendation.
-**No payment is executed.**
+Paytm Build for India AI Hackathon - Track 3: Autonomous AI Teammates.
+Built on the existing Meta dispute prototype. The original FastAPI routes,
+LangGraph extraction/rules/redaction/draft/verifier and React notice workspace are
+retained. The control tower adds persistent reconciliation, chargeback and fraud
+cases, review feedback, multilingual merchant explanations and measured evaluation.
+**No money moves, no arbitration is filed, and no payment processing is disabled.**
 
-## Run locally
+## Start with Docker
 
-Python 3.11+ and Node.js 20.19+ or 22.12+ required. Generated synthetic data is
-already committed. Start two terminals:
+```sh
+docker compose up --build
+```
+
+Open **http://localhost:8080**; backend docs: http://localhost:8000/docs.
+Startup seeds 160 synthetic payments, runs the agents, and computes a separate
+512-transaction evaluation. SQLite and audit history persist in `payops-data`.
+The seed command is idempotent and never clears prior reviews or audit events.
+Use a different simulator seed for another batch. `docker compose down` preserves
+its volume. To avoid occupied ports set `BACKEND_PORT` / `FRONTEND_PORT` in the shell.
+
+An absent `.env` works offline. Optional `.env` is passed at runtime, never baked
+into either image. Backend runs as an unprivileged user. Use one backend process;
+the simulator is a local in-process worker and original notice reviews are in memory.
+
+## Local setup
+
+Python 3.12 (validated) and Node 20.19+ or 22.12+ are required. PowerShell:
 
 ```powershell
-# Terminal 1, repository root
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+# Only if .env does not already exist:
 Copy-Item .env.example .env
-# Keep keys blank for offline mode. PAYOPS_MOCK=true forces it.
+.\.venv\Scripts\python.exe -m backend.demo
 .\.venv\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
 ```
 
+In a second terminal:
+
 ```powershell
-# Terminal 2
 cd frontend
 npm.cmd ci
 npm.cmd run dev
 ```
 
-Open **http://127.0.0.1:5173**. API docs: http://127.0.0.1:8000/docs.
-On macOS/Linux use `.venv/bin/python` and `npm`. `npm.cmd` avoids PowerShell's
-script-execution restriction on `npm.ps1`.
+Open **http://127.0.0.1:5173**. On Linux/macOS use `.venv/bin/python` and `npm`.
+If `python` resolves to the Windows Store alias, select your installed interpreter
+explicitly. Make targets assume an activated virtual environment:
 
-Choose D001 (rotated duplicate-debit notice), optionally record/upload a voice
-note, then click **Run agent**. Inspect the redaction comparison, cited ledger
-records, verifier and draft. **Inject bad citation** tests a copy; it does not
-change the original run. Approve or reject the actual recommendation. Reviewed
-cases close for the session. Restart the backend to reset the queue.
+| Command | Behavior |
+|---|---|
+| `make install` | Python dependencies and `npm ci` |
+| `make test` | Pytest, original smoke, frontend build |
+| `make seed` | Append/idempotently seed synthetic ledger |
+| `make demo` | Seed, run agents, populate review queue and evaluation |
+| `make eval` | Original 30-notice evaluation and control tower holdout |
+| `make run` | FastAPI on 8000 |
+| `make frontend` | Vite development frontend |
 
-## Architecture
+Equivalent commands work without Make, including on Windows.
+`requirements.lock` records the versions validated in this build; Docker installs
+that lock. Use `pip install -r requirements.lock` for the same Python dependency
+versions locally. Node dependencies are pinned by `frontend/package-lock.json`.
+
+## Architecture and stack
 
 ```mermaid
-flowchart LR
-    Notice["Synthetic notice image"] --> Extract["Extract · Muse Spark 1.3"]
-    Extract --> Match["Match · exact ledger reference"]
-    Ledger["Synthetic ledger"] --> Match
-    Match --> Rules["Rules · deterministic demo policy"]
-    Rules --> Redact["Redact · Muse Spark Open / Baseten"]
-    Voice["WAV note · Muse Voice"] --> Redact
-    Redact --> Draft["Draft · Muse Spark 1.3"]
-    Draft --> Verify["Verify · ID, amount, date, status, action"]
-    Ledger --> Verify
-    Verify -->|"pass"| Reply["Render evidence-bound reply"]
-    Verify -->|"fail"| Escalate["ESCALATE · draft withheld"]
-    Reply --> Human["Human approves or rejects"]
-    Escalate --> Human
-    Human --> Decision["In-memory review record · no money moved"]
+flowchart TD
+    SIM[Seeded CARD / UPI / NET_BANKING simulator] --> DB[SQLite operational ledger]
+    SIM --> GT[Separate evaluation-only label database]
+    DB --> REC[Reference rules / fuzzy GB reconciliation]
+    DB --> DIS[Chargeback checklist / logistic win estimate]
+    DB --> FRD[Isolation Forest / velocity / refund rules]
+    REC --> DEC[Common Decision contract]
+    DIS --> DEC
+    FRD --> DEC
+    DEC --> POLICY[Confidence and mandatory approval policy]
+    POLICY --> Q[Persistent review queue]
+    Q --> HUMAN[Approve / reject / correct]
+    HUMAN --> AUDIT[Append-only hash-chain audit]
+    HUMAN --> FB[Feedback / confidence recalibration]
+    FB --> POLICY
+    DB --> FACTS[Python-computed merchant facts]
+    FACTS --> LLM[Sarvam / Meta / deterministic templates]
+    LLM --> GATE[Exact grounded-sentence verification]
+    GATE --> UI[React control tower]
+    Q --> UI
+    AUDIT --> UI
+    GT --> EVAL[Held-out evaluation only]
+    EVAL --> UI
+    IMG[Original synthetic notice PNG] --> GRAPH[Existing LangGraph dispute workflow]
+    GRAPH --> LEGACY[Original notice workspace / human review]
 ```
 
-Each graph step appears in the trace with its configured model or local
-implementation, mode, status, duration and output summary. This is an execution
-audit, not a model chain-of-thought display. Voice attribution appears when the
-stored transcript is used unchanged in the run.
+Python, FastAPI, Pydantic, LangGraph, standard-library SQLite, scikit-learn,
+NumPy/Pandas, React 19, Vite, lucide-react, Pytest, Playwright, Docker Compose.
+No authentication, external database or deployment platform was added.
 
-## Models and real API setup
+### Agents
 
-| Step | Intended real model | Transport | Offline behavior |
-|---|---|---|---|
-| Extract | `muse-spark-1.3` | Meta Responses, image data URL | Reads fixture sidecar; no OCR |
-| Redact | `meta-models/muse-spark-open-1026` | Baseten Chat Completions | Local identity/pattern scrub |
-| Draft | `muse-spark-1.3` | Meta Responses | Deterministic claims and confidence fixture |
-| Voice | `muse-voice-transcribe-1.0` | Meta HTTP multipart | Fixed transcript; ignores speech content |
-| Match, rules, verify | Python | Local functions | Same implementation |
+- **Reconciliation:** exact transaction reference first, normalized reference rule,
+  then guarded fuzzy candidates scored by gradient boosting. Numeric reference
+  identity, merchant, rail, amount, timing and ambiguity constrain candidates.
+  A separately trained gradient-boosted break classifier is shown alongside
+  deterministic ledger invariants. Both must agree before CLEAN auto-resolution.
+- **Dispute:** UPI chargeback reason codes, weighted evidence checklist, deadlines,
+  logistic synthetic win estimate, fight/accept recommendation and verified draft.
+  Evidence confidence weights: reference .20, settlement .18, authentication .16,
+  delivery .16, deadline .12, signed receipt .18. Signed receipt is explicitly
+  unavailable. Complete available evidence therefore yields .82; missing evidence
+  or an expired deadline reduces it. This score is not a win probability.
+- **Fraud:** Isolation Forest plus merchant 60-second velocity, device risk,
+  refund ratios and merchant amount deviations. Only review recommendations.
+- **Original notice agent:** extract image → exact ledger match → demo rules →
+  redact → structured draft → verify → additive intelligence summary. Its existing
+  six-step trace and all original routes remain compatible.
 
-The saved [live evaluation](eval_results_live.md) records extraction, redaction
-and drafting with `muse-spark-1.3` through Meta Responses on 2026-11-04.
-This run does not verify the Baseten open-weight model or real voice transcription.
-HTTP request shapes are also covered by tests with stubbed transports.
+### Decision and review policy
 
-Edit the ignored `.env` locally:
+Every new agent returns `action`, `confidence`, `reasoning`, `evidence`, `amount`,
+`case_id`. Amounts come from integer-paise ledger records and serialize as decimal
+strings. Evidence must belong to the cited transaction. Confidence is validated
+in [0,1] and is a synthetic-demo score.
+
+| Configuration | Default |
+|---|---|
+| `AUTO_RESOLVE_THRESHOLD` | .95 |
+| `HUMAN_REVIEW_THRESHOLD` | .70 |
+| `HIGH_VALUE_THRESHOLD` | INR 50000 |
+| `WRITE_OFF_LIMIT` | INR 5000 |
+
+Eligible RECONCILE/NO_ACTION bookkeeping decisions at or above .95 auto-resolve.
+Other cases at or above .70 require one-click review; lower scores go to the
+expert queue. High-value cases, kill switches, restrictions, arbitration, policy
+changes and write-offs above the limit always require expert review. High
+confidence cannot override these gates. Human overrides record a corrected action
+and reason; they never execute a financial operation.
+
+Queue reviews use version checks and SQLite transactions. Predictions are retained;
+feedback stores original/corrected decisions, reason, features and UTC time.
+Recalibration fits logistic correctness confidence with a seeded synthetic prior
+plus analyst feedback, reports separate holdout Brier scores and review estimates,
+and applies to future predictions. Historical queues are not silently rewritten.
+A lower review estimate is not proof of improved quality.
+
+Audit insertion shares the business transaction. SQL triggers reject event
+updates/deletes, and a SHA-256 chain detects tampering. Policy snapshots, provider
+information, decisions, reviews, corrections, calibration, simulations and kill-switch
+suggestions/approvals are recorded. A database administrator can rewrite the entire
+chain; there is no external trusted checkpoint.
+
+## Providers and credentials
+
+Copy `.env.example` only when no local `.env` exists. Never commit populated keys.
 
 ```dotenv
-MODEL_API_KEY=your_meta_key
-BASETEN_BASE_URL=your_dashboard_openai_compatible_base_url
-BASETEN_API_KEY=your_baseten_key
+LLM_PROVIDER=sarvam
+SARVAM_API_KEY=
+SARVAM_MODEL=sarvam-105b
+SARVAM_BASE_URL=https://api.sarvam.ai/v1
+SARVAM_TIMEOUT=30
 PAYOPS_MOCK=false
 ```
 
-Restart the backend after changing configuration. Never commit populated keys.
-`EXTRACT_*`, `REDACT_*`, and `DRAFT_*` independently override `MODEL_MODEL`,
-`MODEL_BASE_URL`, `MODEL_API_KEY`, and `MODEL_PROTOCOL`. Protocol values are
-`responses` or `chat`; Meta defaults to Responses. When `BASETEN_BASE_URL` is set,
-redaction defaults to Baseten's key, Chat and the requested `-1026` model.
-Explicit `REDACT_*` overrides win. Without Baseten, redaction falls back to
-`MODEL_*` and may use the closed Meta model; the trace shows this. Missing keys
-make that step mock. `PAYOPS_MOCK=true` forces every step mock. Live errors never
-silently fall back to fixtures.
+Sarvam uses `/chat/completions` and `api-subscription-key`. Contract:
+[Sarvam V1](https://docs.sarvam.ai/api-reference/chat/chat-completions-v1).
+Sarvam-M is deprecated. `LLM_PROVIDER=meta` selects the retained Meta adapter;
+`local`, missing credentials, or `PAYOPS_MOCK=true` uses deterministic templates.
+Sarvam failures/rate limits/invalid output yield labeled local fallback, never a
+fabricated success. A live Sarvam text check succeeded on 2026-11-15; ordinary tests
+stub HTTP and never need keys.
 
-**Model-ID discrepancy:** official public Meta/Baseten pages show
-`meta-models/muse-spark-open`; the requested dashboard-specific `-1026` ID could
-not be confirmed there. The app keeps `-1026` as requested. Verify the exact model
-and base URL in your dashboard. See [API contract verification](docs/api_contracts.md)
-for official sources and scope.
+Python computes money, counts and statuses. Providers compose supplied English,
+Hindi or Tamil sentences; the output must be an exact permutation of those approved
+sentences. Unsupported financial or nonfinancial claims are rejected. This is
+constrained explanation, not unrestricted financial text generation. Unknown ledger
+scope and timing predictions return: **"I'm not sure, routing to an analyst."**
+Bulk agent batches use local drafts to avoid unsolicited provider costs. The case
+file's **Generate provider draft** and merchant assistant call the configured provider.
+Provider mode is shown in responses; configuration endpoints never expose keys.
 
-```powershell
-# Offline text + image check
-.\.venv\Scripts\python.exe scripts/check_api.py
-# Requires real credentials; fails if any graph step is mock
-.\.venv\Scripts\python.exe scripts/check_api.py --require-live --all
-# Optionally test a real voice recording
-.\.venv\Scripts\python.exe scripts/check_api.py --require-live --all --voice path/to/note.wav
-```
+The original image/draft adapters still support `MODEL_*`, per-step `EXTRACT_*`,
+`DRAFT_*`, `REDACT_*`, and `BASETEN_*` overrides. Meta defaults to Responses and
+`muse-spark-1.3`. Baseten redaction defaults to Chat and
+`meta-models/muse-spark-open-1026`; the requested dashboard-specific ID remains
+unverified. Without Baseten, original redaction can use the Meta model instead.
+See [contract verification](docs/api_contracts.md).
 
-Voice accepts mono 16-bit PCM WAV at 16 or 24 kHz, up to 120 seconds / 10 MB.
-Browser recording converts captured audio to mono 24 kHz WAV. Uploaded files must
-already be supported WAVs. Convert if needed:
-`ffmpeg -i input.mp3 -ac 1 -ar 24000 -sample_fmt s16 note.wav`.
-The microphone UI is implemented but was not exercised with a physical microphone
-during this build; WAV upload was API-tested. Audio is not persisted by the app.
+Original offline extraction reads sidecar fields (**no OCR**); drafting is a
+fixture, redaction is local scrubbing, and voice returns a labeled fixed transcript
+that ignores speech content. Live errors in the original Meta graph escalate and
+never silently fall back. A saved historical [live Meta report](eval_results_live.md)
+is retained; it does not verify Baseten or real voice.
 
-## What the verifier checks
+Voice UI/upload remains available for compatibility. Live voice and a physical
+microphone are unverified; do not present them as working speech recognition.
+Supported audio: mono 16-bit PCM WAV, 16/24 kHz, at most 120 seconds / 10 MB.
+Browser recordings convert to mono 24 kHz. No audio is persisted.
 
-The model produces **structured claims**, not arbitrary reply prose. A draft must
-cite exactly the matched records without missing, extra or duplicate citations.
-Each ID must exist and belong to the matched transaction. Amount, date and status
-must match that record, and the action must match policy. Money uses decimal
-arithmetic. Schema errors, provider failures or failed verification force
-`ESCALATE`. Failed drafts are withheld from the rendered reply.
+## Data and persistence
 
-The reply is rendered from checked claims and a fixed policy reason, preventing
-unsupported free-text assertions from bypassing verification. This cannot detect
-false or incomplete ledger data. Valid citations do not alone prove correctness.
+Only synthetic merchants, notices, transaction IDs and identifiers are generated.
+`backend.simulator` appends deterministic batches and injects missing/short/duplicate
+settlements, over-refunds, fee mismatches, chargebacks and fraud bursts.
 
-Demo policy: exactly two matching settled debits suggest `REFUND`; one settled
-debit suggests `NO_ACTION`; refunded rows suggest `NO_ACTION`; failed-but-debited
-rows suggest `REFUND`. Unknown references, amount/date conflicts, mixed statuses,
-ambiguous multiplicity, future dates or age over 90 days escalate. The 0–90-day
-window is invented demo policy, not a payment-network/legal rule. UPI/card/BIN
-labels do not implement separate network-specific policies.
+Operational tables: `transactions`, `settlements`, `refunds`, `disputes`, `fees`,
+`simulation_runs`, `merchant_profiles`, `agent_decisions`, `review_queue`,
+`human_approvals`, `human_feedback`, `audit_events`, `model_registry`, `fraud_alerts`.
+Initialization is additive (`CREATE IF NOT EXISTS`, schema version 1), with foreign
+keys, indexed references and transaction boundaries. Default file:
+`runtime/payops.sqlite3`; override with `PAYOPS_DB`.
+
+`ground_truth_labels` lives in the sibling `payops.truth.sqlite3`. Only evaluation
+code reads it; it has no API route. New agents never query labels during inference.
+Original notice fixtures remain in `data/` and their offline evaluation is explicitly
+fixture-assisted. The original 30-notice review session resets on backend restart;
+unified ledger/review/audit history persists.
+
+## API
+
+New endpoints preserve their `/api` prefix. Vite/nginx strip it only for the
+original `/health`, `/disputes` and `/notices` routes.
+
+| Routes | Purpose |
+|---|---|
+| `GET /api/dashboard/summary` | Backend-computed metrics |
+| `GET /api/transactions`, `/settlements`, `/merchants`, `/reconciliation` | Operational ledger/views |
+| `POST /api/simulator/start`, `/stop`; `GET /api/simulator/status` | Batch or continuous simulation |
+| `GET /api/agents`, `/agents/activity`; `POST /api/agents/run` | Agents/activity |
+| `GET /api/review-queue`, `/{case_id}`, `/{case_id}/evidence` | Reviewable case files |
+| `POST /api/review-queue/{case_id}/approve`, `/reject`, `/edit` | Versioned human decisions |
+| `POST /api/review-queue/{case_id}/draft` | Explicit provider draft request |
+| `POST /api/fraud/{case_id}/suggest-kill-switch`, `/approve-kill-switch` | Human-controlled suggestions |
+| `GET /api/fraud/alerts`, `/audit`, `/feedback`, `/evaluation`, `/configuration` | Inspectable history/results |
+| `POST /api/feedback/recalibrate`, `/evaluation/run` | Measured recalibration/evaluation |
+| `POST /api/merchant-assistant/chat` | Merchant ID, language, question, optional transaction scope |
+
+Original backend routes: `GET /health`, `/disputes`, `/disputes/{id}`,
+`/notices/{id}.png`; `POST /disputes/{id}/run`, `/voice`, `/decision`, `/verify-demo`.
+`run` accepts optional `note`; omission uses a prior voice transcript, explicit
+empty string clears it for that run. Decisions require the latest `run_id`.
+The bad-citation demonstration tests a copy without changing the reviewable result.
+Original approval/rejection now also appends a persistent audit event.
 
 ## Tests and evaluation
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest
 .\.venv\Scripts\python.exe scripts/smoke.py
+.\.venv\Scripts\python.exe scripts/check_api.py
+.\.venv\Scripts\python.exe scripts/check_sarvam.py --require-live
 .\.venv\Scripts\python.exe scripts/eval.py
+.\.venv\Scripts\python.exe scripts/eval_control_tower.py
 cd frontend
 npm.cmd run build
+npx.cmd playwright install chromium
+# Start backend + Vite first; browser tests mutate synthetic review cases.
+npx.cmd playwright test
 ```
 
-| Run | Action accuracy | Valid cited IDs | Full verifier passes | Escalations | Agent errors |
-|---|---|---|---|---|---|
-| [offline (fixtures)](eval_results.md) | 100.0% (30/30) | 100.0% (31/31) | 100.0% (30/30) | 12/30 | 0 |
-| [live (Meta API, 2026-11-04 IST)](eval_results_live.md) | 100.0% (30/30) | 100.0% (31/31) | 100.0% (30/30) | 12/30 | 0 |
+`check_api.py --require-live --all` tests original Meta/Baseten credentials; optional
+`--voice note.wav` checks voice. It must not be called a live success when a step
+is mock. Default pytest forces mock mode and stubs external transports.
 
-Both runs require human review for **30/30** cases. Tests cover adversarial
-citations, provider failure paths, redaction and stale-run approval.
-The saved live run used `muse-spark-1.3` for extraction, redaction and drafting;
-it does not demonstrate the Baseten open-weight path.
+[Control tower report](reports/control_tower_eval.md): 512 held-out synthetic
+transactions, 608 agent cases, seed 916. Training seeds and sample counts are in
+the report; ground truth is consulted only by evaluation. Rules-only versus assisted:
 
-**Offline evaluation is not model accuracy.** Extraction reads ground-truth
-sidecar fields and drafting uses deterministic fixtures. Rotated, blurred and
-low-contrast images exist, but offline results do not measure image robustness.
-The live run uses real extraction and drafting over 30 synthetic notices with
-synthetic policy labels. These numbers do not measure real-world performance.
-`python scripts/eval.py --live` requires all graph model keys, makes provider calls
-and saves [eval_results_live.md](eval_results_live.md) atomically after every
-completed case, including failures. Offline runs similarly save `eval_results.md`.
-Use `--limit 10 --workers 4` for a smaller concurrent run; the default is four
-workers. Limits must allow at least three noisy images and multiple scenarios;
-the first N cases are kept when they already satisfy that coverage. Otherwise,
-the earliest cases meeting the coverage requirement are selected. HTTP 429 and
-timeout failures retry up to three times with exponential backoff and jitter.
-Partial reports contain only completed cases; their denominators and live caveat
-reflect that count. Ctrl+C saves completed work and cancels queued cases; active
-HTTP requests finish or time out. Regenerate fixtures with `python gen_data.py`,
-then restart the API.
+| Metric | Rules-only | Assisted |
+|---|---|---|
+| Auto-match rate | 62.50% | 81.25% |
+| Break accuracy | 68.75% | 100.00% |
+| Dispute-win AUC (32 outcomes) | .5000 | .6745 |
+| Fraud precision / recall | 50% / 100% | 50% / 100% |
+| Human-review rate | 73.68% | 63.16% |
+| Observed false auto-resolution | 0 / 160 | 0 / 224 |
 
-## What was built during the hackathon
+Wilson intervals are included: zero observed false auto-resolutions does not prove
+zero risk. Over-refund alerts count as false positives for the narrow injected-burst
+fraud target. No fraud gain is claimed. Shared generator assumptions limit all
+results. This does not benchmark OCR, model redaction or live-world performance.
+Original [30-notice offline evaluation](eval_results.md) was rerun: 30/30 actions,
+31/31 valid citations, 30/30 verifier passes, 12 escalations; fixture results are
+not model accuracy. Feedback calibration scores are shown separately in the UI.
 
-Created from scratch in this session: configurable Meta/Baseten adapters;
-LangGraph workflow; synthetic image/ledger generator; demo policies;
-model-assisted redaction adapter; voice adapter and WAV upload; React queue and
-case workspace; evidence trail; claim verifier; human approval/rejection with
-stale-run protection; isolated bad-citation demo; tests, evaluation and a
-[three-minute demo shot list](demo/script.md). Third-party libraries and model
-services are dependencies, not work claimed as original. Submission eligibility
-and timing must be checked by the entrant.
+## Demo and known limits
 
-## Honest limitations
+Run `python -m backend.demo` or `make demo`, then follow the
+[three-minute script](demo/script.md). The frontend has functional navigation for
+Overview, Transactions, Reconciliation, Disputes, Fraud, Review Queue, Merchant
+Assistant, AI Agents, Audit Trail and Evaluation. Metrics come from backend data.
 
-* Synthetic data only. Local and unauthenticated. State/review history is in memory
-  and resets on restart; use one backend process. No database or durable audit
-  log. Approve/reject records review, not a refund.
-* Extraction sends the original image to Meta. Redaction receives original text
-  and protects only later draft context. The trace displays original vs redacted
-  synthetic values. Hosted Baseten is not private hosting. Open weights permit
-  deployment options; private hosting is not implemented here.
-* Redaction drops identity fields and scrubs known values, numeric and UPI/email
-  patterns. Unrecognized names/unusual identifiers may survive. This is not a
-  certified anonymizer. Do not use private data. Confidence scores are
-  uncalibrated; mock scores are fixed fixtures, not probabilities.
-* The saved live report verifies the Meta-model workflow on synthetic data only.
-  Baseten's requested `-1026` model, live voice transcription and physical microphone
-  behavior remain unverified. Browser/app automation was unavailable during build,
-  so visual/browser interaction QA is outstanding; frontend compilation passed.
-* No reconciliation, fraud scoring, routing, SAM integration, auth, database,
-  deployment or automatic submission. Reconciliation, fraud and routing are
-  future work only. A demo script is included; no video was recorded.
+This is a local, unauthenticated synthetic prototype. Do not enter real payment or
+customer data. No production settlement/network integration, legal/network-specific
+rules, real refunds, certified PII anonymization, authentication or deployment is
+claimed. Redaction protects later draft context; original images/text go to the
+configured extraction/redaction services. Hosted Baseten is not private hosting.
+Live Meta/Baseten/voice entitlement remains unverified in this session.
 
-## API routes
+Routing, fee-audit agent, KYC and credit agents are **not implemented**. Fee
+mismatches are detected by reconciliation; there is no separate fee-audit agent.
+ML models train from small synthetic priors and are rebuilt deterministically in
+process; calibration parameters and feedback persist. The audit chain lacks an
+external checkpoint. No demo video has been recorded.
 
-`GET /health`, `GET /disputes`, `GET /disputes/{id}`, `GET /notices/{id}.png`,
-`POST /disputes/{id}/run` (`{"note":"optional text"}`),
-`POST /disputes/{id}/voice` (multipart `audio`),
-`POST /disputes/{id}/decision` (`decision`, latest `run_id`, optional `comment`),
-`POST /disputes/{id}/verify-demo` (injected citation on a copy).
-Omitting `note` uses the uploaded voice transcript; an explicit empty string
-clears it for that run. Decisions reject stale IDs and repeated review.
-# payops-brain
+See [implementation log](docs/implementation.md) and
+[final implementation report](docs/implementation-report.md) for exact validation
+commands, statuses and remaining limits.

@@ -17,6 +17,8 @@ class ModelError(RuntimeError):
 
 
 def parse_json(text: str) -> dict:
+    if not isinstance(text, str):
+        raise ValueError('Expected text containing one JSON object')
     text = text.strip()
     text = re.sub(r'^```(?:json)?\s*', '', text, flags=re.I)
     text = re.sub(r'\s*```$', '', text)

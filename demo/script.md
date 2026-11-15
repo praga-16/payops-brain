@@ -1,38 +1,31 @@
-# PayOps Brain · three-minute demo
+# PayOps Brain: three-minute control tower demo
 
-Total: 180 seconds. Record at 1920×1080, browser around 100% zoom. Restart the
-backend to reset the queue. Start both servers, open http://127.0.0.1:5173, select
-D001, prepare a 5–10-second mono PCM WAV or use Record note. Rehearse once.
-Recording and export are manual.
+Start with `docker compose up --build` (http://localhost:8080), or run
+`python -m backend.demo`, Uvicorn and Vite. Use a fresh synthetic seed if earlier
+reviews are closed. Keep credentials and private browser tabs off-screen.
+All displayed totals and results come from real application behavior.
 
-If real checks have not passed, show **Offline fixture mode** and use the offline
-wording below. Do not imply the fixed transcript recognizes speech or call the
-offline eval a vision benchmark. Mark any latency cut visibly as a time cut.
+| Time | Action and narration |
+|---|---|
+| 0:00–0:15 | Overview: “One synthetic ledger, three payment rails, three reviewable agents. No money moves.” |
+| 0:15–0:30 | Enter a new seed, batch size 32, start a batch. Open Transactions and show CARD, UPI, NET_BANKING. Continuous mode is optional; stop it before the rest of the demo. |
+| 0:30–0:50 | Reconciliation: open missing, short and duplicate cases. Show actual settlement evidence and explain exact/normalized/fuzzy matching. Eligible bookkeeping closes automatically; financial actions do not execute. |
+| 0:50–1:20 | Disputes: open an OPEN UPI chargeback with available authentication/delivery evidence. Show checklist, missing signed receipt, deadline, fight/accept and win estimate. Evidence confidence near .82 appears only when the documented checks support it. Click Generate provider draft and show its actual provider/mode. |
+| 1:20–1:35 | Enter a comment and approve. Audit Trail: show HUMAN APPROVE, immutable prediction, evidence, UTC time and hash-chain integrity. |
+| 1:35–1:55 | Review Queue: edit a different OPEN case, choose corrected action and give a reason. Recalibrate from feedback. Show before/after holdout Brier and review estimates; say whether quality improved or worsened, based on the displayed numbers. |
+| 1:55–2:10 | Evaluation: show measured rules/assisted scoreboard, sample counts and synthetic limits. Fraud precision is 50% in the saved run; do not claim an ML gain. |
+| 2:10–2:35 | Merchant Assistant: choose a synthetic merchant, ask “Why is my settlement short?” in English, Hindi and Tamil response modes. Show computed ledger facts and provider/mode. If Sarvam is unavailable, identify local fallback honestly. |
+| 2:35–2:50 | Fraud: open burst alert and show velocity/refund evidence. Suggest a kill switch. Explain that explicit human approval is required and that even approval only records a recommendation in this demo. |
+| 2:50–3:00 | Return to Overview: “Synthetic-data validation, grounded explanations and an inspectable audit. Humans retain financial control.” |
 
-| Time | Screen / action | Narration |
-|---|---|---|
-| 0:00–0:15 | Queue, then rotated D001 notice | “Disputes start as messy notices. Operators need to connect them to ledger evidence and decide what happens next. PayOps Brain proposes a resolution, checks its claims, and keeps the final decision with a human.” |
-| 0:15–0:35 | Synthetic label and notice; record/upload short note | “This is a rotated, entirely synthetic duplicate-debit notice. I'll add a note: review both debit records before approving a refund.” Offline: “Voice is a fixed transcript fixture in this offline demo.” |
-| 0:35–1:00 | Confirm transcript; click Run agent | Live: “Muse Voice transcribes the recording, then Muse Spark reads the image.” Offline: “This run uses fixture extraction and drafting, so it works without API keys.” |
-| 1:00–1:25 | Extract, Match, Rules trace; model and mode | “LangGraph tracks each step. Matching uses the transaction reference. Policy sees two settled debits with matching amounts and dates, so it recommends a refund. These are explicit demo rules.” |
-| 1:25–1:45 | Original vs redacted trace, then reply | “Before drafting, identity fields are dropped and the note is scrubbed. The configured live path uses Muse Spark Open on Baseten here; offline it is a local scrub. The draft contains structured claims; the reply is rendered from checked facts.” |
-| 1:45–2:05 | Verifier panel and cited ledger rows | “The verifier checks every ID, transaction, amount, date and status, and checks the action against policy. A citation that merely looks plausible is not enough.” |
-| 2:05–2:30 | Challenge the verifier; Inject bad citation | “I inject a nonexistent citation into a copy. This is a deliberate test, not an actual model mistake. The verifier blocks the draft and escalates. The original reviewable result stays unchanged.” |
-| 2:30–2:45 | Comment, approve recommendation, recorded decision | “I review the actual evidence and approve. This records my review. It never moves money, and a stale or already-reviewed run cannot be approved again.” |
-| 2:45–3:00 | eval_results.md, return briefly to model trace | “Thirty synthetic offline cases: thirty correct actions, thirty-one valid citations, twelve escalations. These test the workflow, not model accuracy. Open weights offer deployment options; hosted Baseten isn't private hosting. Every case still needs a human.” |
+## Rehearsal checks
 
-## Before recording
-
-* Run `python scripts/check_api.py`, `python scripts/smoke.py`, `python -m pytest`
-  and `npm.cmd run build` from the appropriate directories.
-* For live claims, run `python scripts/check_api.py --require-live --all` and
-  optionally `--voice note.wav`. Confirm the Baseten model ID/base URL. Show real
-  trace modes, including any mixed/mock steps.
-* Keep populated `.env`, keys, account dashboards and private browser tabs out of
-  the recording. All notices, names and payment references must be synthetic.
-* Rehearse microphone permission and conversion; upload supported WAV if needed.
-  The offline transcript is always a labeled fixed fixture.
-* Inspect layout at the recording resolution. Automated visual QA was blocked by
-  the local browser/app connection during development.
-* Do not claim private hosting, compliance, OCR accuracy from offline numbers,
-  real refunds, durable logs, or live API success without separately testing it.
+- Run Pytest, original smoke and both evaluations; build the frontend.
+- Confirm the configured provider on the status badge and a live merchant response.
+- Prepare an OPEN chargeback and a separate OPEN correction case.
+- Rehearse at 1440×1000 or 1920×1080. Mark any latency cut as a time cut.
+- Original notice workflow remains under Disputes → Open original notice workflow.
+  Its extraction/draft are fixtures without Meta credentials; do not imply OCR.
+- Voice is optional and unverified live. Omit it from this script until verified.
+- Do not claim regulatory compliance, production ML accuracy, private hosting,
+  actual refunds, arbitration, payment restrictions, or a recorded video.

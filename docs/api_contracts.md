@@ -4,10 +4,15 @@ Sarvam contract checked against https://docs.sarvam.ai/api-reference/chat/chat-c
 and https://docs.sarvam.ai/api-reference/authentication on 2026-11-15:
 `POST https://api.sarvam.ai/v1/chat/completions`, `api-subscription-key` header,
 `sarvam-105b`, messages, choices[0].message.content. Sarvam-M is deprecated.
-The new adapter has mocked HTTP tests; no credentialed Sarvam call has been made.
+The adapter has mocked HTTP tests. A credentialed short text check and grounded
+English/Hindi/Tamil merchant checks succeeded on 2026-11-15.
 Generated sentences must be an exact permutation of approved computed-fact
 sentences; otherwise a labeled local fallback is returned. This deliberately
 limits creative generation and translation to protect factual integrity.
+Live validation found this account's endpoint accepts reasoning_effort only as
+low/medium/high, despite the public page also listing none/max. The adapter uses
+low, JSON mode and a 4096-token budget. A provider status or output failure still
+uses a labeled local fallback; credentials and raw provider errors are not logged.
 
 Checked official sources on 2026-11-04. Documentation verification does not mean a
 credentialed request succeeded. No credentials were supplied at build time.
