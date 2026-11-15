@@ -56,3 +56,19 @@ Fraud combines an Isolation Forest trained on 800 separate synthetic normal
 feature vectors (seed 991) with per-merchant 60-second velocity, refund ratio,
 device risk and merchant amount deviations. Alerts cite transactions/refunds and
 never disable processing. 102 tests passed; original smoke and health passed.
+
+## Phase 5
+
+Persistent queue APIs use transactional version checks. Original predictions are
+immutable; corrections store original/corrected decisions, reason, features and
+UTC timestamp. Approvals/rejections/edits and legacy dispute decisions append
+audit events. Kill-switch suggestions require a separate explicit human approval
+and record no processing execution. Logistic confidence recalibration uses a
+300-sample synthetic prior (seed 661) plus weighted analyst feedback, evaluates a
+separate 300-sample synthetic holdout (seed 662), and reports before/after Brier
+scores and review estimates without claiming improvement. Future decisions use
+the recorded calibrator; historical cases are not silently rewritten.
+107 tests passed; original smoke passed; backend restarted successfully.
+
+Sarvam live text integration check succeeded on 2026-11-15 using sarvam-105b.
+The key remains only in ignored .env. Ordinary pytest continues in mock mode.

@@ -12,6 +12,11 @@ from backend.meta_client import ModelError
 from backend.verify import verify_draft, render_reply
 
 app = FastAPI(title='PayOps Brain', version='0.2.0')
+from backend.ledger import initialize, connect
+from backend.api import router as control_tower_router
+from backend import audit
+initialize()
+app.include_router(control_tower_router)
 app.add_middleware(CORSMiddleware, allow_origins=(os.getenv('CORS_ORIGINS') or
                    'http://localhost:5173,http://127.0.0.1:5173').split(','),
                    allow_methods=['GET', 'POST'], allow_headers=['Content-Type'])
@@ -90,6 +95,8 @@ def decision(did: str, body: DecisionRequest):
             raise HTTPException(409, 'Stale result; refresh and review the latest run')
         event = {**body.model_dump(), 'at': datetime.now(timezone.utc).isoformat(),
                  'action': case['result']['action'], 'payment_executed': False}
+        with connect() as conn:
+            audit.append(conn, 'LEGACY_DISPUTE_' + body.decision, did, event)
         case['decisions'].append(event)
         case['status'] = 'APPROVED' if body.decision == 'APPROVE' else 'REJECTED'
         return {'status': case['status'], 'event': event}
