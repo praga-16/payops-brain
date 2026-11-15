@@ -1,9 +1,27 @@
 """Additive synthetic intelligence routes; no existing API is replaced."""
 from fastapi import APIRouter
+from pydantic import BaseModel,Field
 from backend.api import guarded
 from backend.moneyflow import flow, flow_summary
 
 router=APIRouter(prefix='/api')
+
+
+class IncidentBody(BaseModel):
+    count: int = Field(default=16,ge=16,le=128)
+    seed: int | None = Field(default=None,ge=0,le=1000000)
+
+
+@router.get('/incidents')
+def incident_history():
+    from backend.incidents import history
+    return history()
+
+
+@router.post('/incidents/{scenario}')
+def trigger_incident(scenario: str, body: IncidentBody):
+    from backend.incidents import trigger
+    return guarded(trigger,scenario,count=body.count,seed_value=body.seed)
 
 
 @router.get('/impact')

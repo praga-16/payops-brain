@@ -17,16 +17,20 @@ from backend.ledger import connect, db_path, initialize, utcnow
 
 BREAKS = ['MISSING_SETTLEMENT', 'SHORT_SETTLEMENT', 'DUPLICATE_SETTLEMENT',
           'OVER_REFUND', 'FEE_MISMATCH', 'CHARGEBACK', 'FRAUD_SUSPECTED']
+INCIDENTS={'upi-bank-outage':'MISSING_SETTLEMENT','duplicate-settlement-file':'DUPLICATE_SETTLEMENT',
+           'fee-rate-change':'FEE_MISMATCH','card-fraud-burst':'FRAUD_SUSPECTED'}
 
 
-def seed(count: int = 160, seed_value: int = 42, path: Path | str | None = None) -> dict:
+def seed(count: int = 160, seed_value: int = 42, path: Path | str | None = None, *, scenario: str | None = None) -> dict:
     if not 16 <= count <= 10000:
         raise ValueError('Batch size must be between 16 and 10000')
+    if scenario is not None and scenario not in INCIDENTS:raise ValueError('Unknown synthetic incident scenario')
     target = Path(path) if path else db_path()
     initialize(target)
     rng = random.Random(seed_value)
     # A repeated seed is idempotent, never clears historical ledger or audit.
     run_id = f'SIM-{seed_value}-{count}'
+    if scenario:run_id=f'INC-{scenario}-{seed_value}-{count}'
     labels: list[tuple] = []
     with connect(target) as conn:
         conn.execute('BEGIN IMMEDIATE')
@@ -40,9 +44,12 @@ def seed(count: int = 160, seed_value: int = 42, path: Path | str | None = None)
         for i in range(count):
             slot = i % 16
             anomaly = BREAKS[slot] if slot < 7 else 'CLEAN'
+            if scenario:anomaly=INCIDENTS[scenario]
             tid = f'{run_id}-T{i:05}'
             merchant = f'SYN-M{12 if anomaly == "FRAUD_SUSPECTED" else rng.randrange(1, 12):03}'
             rail = ['CARD', 'UPI', 'NET_BANKING'][i % 3]
+            if scenario=='upi-bank-outage':rail='UPI'
+            if scenario=='card-fraud-burst':rail='CARD'
             # All chargeback batches include a UPI demonstration, without a score fixture.
             if anomaly == 'CHARGEBACK':
                 rail = 'UPI'
@@ -66,8 +73,11 @@ def seed(count: int = 160, seed_value: int = 42, path: Path | str | None = None)
                 fuzzy = i % 8 == 7
                 if fuzzy:
                     reference = tid + 'x'
+                if scenario=='duplicate-settlement-file':
+                    reference=tid
+                    fuzzy=False
                 conn.execute('INSERT INTO settlements VALUES(?,?,?,?,?,?,?,?)',
-                             (f'{tid}-S1', tid if i % 4 and not fuzzy else None, reference, merchant, rail,
+                             (f'{tid}-S1', tid if scenario=='duplicate-settlement-file' or i % 4 and not fuzzy else None, reference, merchant, rail,
                               net, (stamp + timedelta(days=1)).isoformat(), 'SETTLED'))
                 if anomaly == 'DUPLICATE_SETTLEMENT':
                     conn.execute('INSERT INTO settlements VALUES(?,?,?,?,?,?,?,?)',
@@ -87,6 +97,9 @@ def seed(count: int = 160, seed_value: int = 42, path: Path | str | None = None)
             labels.append((tid, anomaly, int(anomaly == 'FRAUD_SUSPECTED'),
                            int(rng.random() < probability)))
         audit.append(conn, 'SIMULATION_BATCH', run_id, {'count': count, 'seed': seed_value, 'synthetic': True})
+        if scenario:
+            conn.execute('INSERT INTO incident_runs VALUES(?,?,?,?)',(run_id,scenario,count,utcnow()))
+            audit.append(conn,'INCIDENT_TRIGGERED',run_id,{'scenario':scenario,'synthetic':True,'count':count,'restricted_action_executed':False})
     truth_path = target.with_name(target.stem + '.truth.sqlite3')
     with closing(sqlite3.connect(truth_path)) as truth:
         with truth:

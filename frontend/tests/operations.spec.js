@@ -21,3 +21,8 @@ test('impact shows assumptions beside computed synthetic values',async({page})=>
  await expect(page.getByRole('heading',{name:'Synthetic rupee impact and assumptions'})).toBeVisible();
  await expect(page.getByText('Resolved amounts require synthetic recovery ledger entries; approvals alone never count.')).toBeVisible();
 });
+test('live incident creates real synthetic cases',async({page})=>{
+ await page.goto('/');await page.getByRole('navigation').getByRole('button',{name:'Live Incidents',exact:true}).click();
+ await page.getByRole('button',{name:'upi bank outage',exact:true}).click();
+ await expect(page.getByRole('status').filter({hasText:'Synthetic incident processed: upi-bank-outage.'})).toBeVisible({timeout:60000});
+});

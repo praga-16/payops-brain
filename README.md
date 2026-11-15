@@ -24,6 +24,12 @@ touches saved using `MINUTES_PER_ANALYST_TOUCH` (5). Per-100,000 scaling and all
 assumptions are displayed. It does not treat approval as recovery or hours as measured
 staff productivity. Only this reporting code may read the isolated synthetic labels.
 
+Live Incidents generates append-only UPI bank outage, duplicate-settlement-file,
+fee-rate-change and card-fraud-burst batches. `POST /api/incidents/{scenario}`
+accepts an optional deterministic seed and batch size. Existing agents process
+the batch; queue/activity polling reflects actual new decisions. These controls
+change no bank, fee contract, routing policy or payment processing setting.
+
 **A synthetic payment operations control tower: one ledger, reviewable agents, human financial control.**
 
 Paytm Build for India AI Hackathon - Track 3: Autonomous AI Teammates.

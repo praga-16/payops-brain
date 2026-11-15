@@ -80,7 +80,7 @@ def activity():
     import json
     with connect() as conn:
         return [dict(r)|{'payload':json.loads(r['payload'])} for r in conn.execute(
-            "SELECT * FROM audit_events WHERE event LIKE 'AGENT_%' OR event='SIMULATION_BATCH' ORDER BY id DESC LIMIT 30")]
+            "SELECT * FROM audit_events WHERE event LIKE 'AGENT_%' OR event IN ('SIMULATION_BATCH','INCIDENT_TRIGGERED') ORDER BY id DESC LIMIT 30")]
 
 
 @router.post('/review-queue/{case_id}/draft')
