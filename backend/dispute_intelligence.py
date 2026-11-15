@@ -40,7 +40,7 @@ def legacy_intelligence(state: dict) -> dict:
             'win_probability':None,'limitation':'Original notice workflow has no labeled chargeback outcome model.'}
 
 
-def analyze(path=None, *, now: datetime | None = None) -> list[dict]:
+def analyze(path=None, *, now: datetime | None = None, live_draft: bool = False) -> list[dict]:
     now=now or datetime.now(timezone.utc)
     transactions={r['id']:r for r in records('transactions',path)}
     settlements=records('settlements',path)
@@ -63,7 +63,7 @@ def analyze(path=None, *, now: datetime | None = None) -> list[dict]:
                    f"Reason code: {dispute['reason_code']}. Evidence deadline: {dispute['deadline']}.",
                    f"Recommendation: {action}. Authentication evidence: {bool(tx['authenticated'])}; delivery proof: {bool(tx['delivery_proof'])}.",
                    'Human approval is required. No arbitration or payment will be executed.']
-        draft=explain(sentences,facts=facts,task='Compose a grounded dispute explanation.')
+        draft=explain(sentences,facts=facts,task='Compose a grounded dispute explanation.',use_provider=live_draft)
         decision=Decision(action=action,confidence=confidence,
                           reasoning='Weighted evidence checklist; signed receipt unavailable. '
                           'Win estimate is trained on separate synthetic outcomes, not a success guarantee.',

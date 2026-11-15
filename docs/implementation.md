@@ -80,3 +80,16 @@ and dispute counts in Python before provider composition. English, Hindi and
 Tamil templates share the same computed fact object. Unknown merchants, unsupported
 questions and settlement-time predictions route to an analyst. Free-form financial
 generation is deliberately unavailable. 111 tests passed; original smoke passed.
+
+## Phase 7
+
+Control tower retains the original dispute workspace and adds operational
+navigation, Python-computed metrics, exception bars, ledger table, simulator
+batches/continuous mode, activity, evidence case files, review edits, fraud
+recommendations, audit and multilingual assistant. Vite preserves /api on new
+routes while forwarding original routes compatibly. Bulk agent runs use local
+drafts; live provider drafts require an explicit request. 114 Python tests,
+2 Playwright browser tests and production build passed. Browser tests exercised
+simulation, chargeback approval, correction, calibration, audit, original notice
+workflow and mobile viewport overflow. A browser-only badge rendering crash was
+found and fixed before proceeding.

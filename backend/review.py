@@ -82,6 +82,8 @@ def review_case(case_id: str, action: str, *, version: int, comment: str = '',
         conn.execute('INSERT INTO human_approvals(case_id,decision,comment,created_at) VALUES(?,?,?,?)',
                      (case_id,action,comment,utcnow()))
         status={'APPROVE':'APPROVED','REJECT':'REJECTED','EDIT':'EDITED'}[action]
+        if original['agent']=='dispute':
+            conn.execute('UPDATE disputes SET status=? WHERE transaction_id=?',('REVIEWED',original['transaction_id']))
         conn.execute('UPDATE review_queue SET status=?,version=version+1,updated_at=? WHERE case_id=?',
                      (status,utcnow(),case_id))
         audit.append(conn,'HUMAN_'+action,case_id,{'original_prediction':original['decision'],

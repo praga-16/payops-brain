@@ -4,6 +4,8 @@ import {ArrowUpRight, ArrowRight, Check, X, ShieldCheck, ShieldAlert, Layers, Li
 import './style.css';
 import './voice.css';
 import VoiceNote from './VoiceNote';
+import ControlTower from './ControlTower';
+import './tower.css';
 
 const money = value => new Intl.NumberFormat('en-IN', {style:'currency',currency:'INR',maximumFractionDigits:2}).format(Number(value));
 const label = text => text?.replaceAll('_',' ').toLowerCase();
@@ -68,4 +70,4 @@ function App(){
   const modes=health?Object.values(health.models).map(m=>m.mode):[];
   return <><nav className="topbar"><a className="brand" href="/" aria-label="PayOps Brain home"><span className="brand-mark"><Layers size={23}/></span>PayOps <b>Brain</b><span className="brand-divider"/><span className="workspace-name">Dispute workspace</span></a><div className="topbar-right"><span className="synthetic-tag">SYNTHETIC DATA ONLY</span><span className="connection"><i/>{modes.length?(modes.every(m=>m==='mock')?'Offline fixture mode':modes.every(m=>m==='live')?'Live models configured':'Mixed live / mock mode'):'Connecting…'}</span><span className="avatar">OP</span></div></nav><div className="workspace"><Queue items={items} selected={selected} onSelect={id=>{if(!busy)setSelected(id)}} query={query} setQuery={setQuery} filter={filter} setFilter={setFilter}/>{caseData?<CaseView key={selected} caseData={caseData} busy={busy} onRun={run} onDecision={decide} error={error} comment={comment} setComment={setComment} notice={notice} setNotice={setNotice} onVoice={onVoice}/>:<main className="loading" role="status">{error||'Loading dispute workspace…'}{error&&<p>Start the backend on port 8000 and refresh.</p>}</main>}</div></>
 }
-createRoot(document.getElementById('root')).render(<App/>);
+createRoot(document.getElementById('root')).render(<ControlTower disputeWorkspace={<App/>}/>);

@@ -19,8 +19,8 @@ def get_provider() -> LLMProvider:
     return LocalProvider()
 
 
-def explain(sentences: list[str], *, facts: dict, language: str = 'en', task: str = '') -> dict:
-    provider=get_provider()
+def explain(sentences: list[str], *, facts: dict, language: str = 'en', task: str = '', use_provider: bool = True) -> dict:
+    provider=get_provider() if use_provider else LocalProvider()
     context={'sentences':sentences,'computed_facts':facts}
     fallback=None
     try:
