@@ -1,5 +1,14 @@
 # PayOps Brain
 
+## New synthetic operations extensions
+
+Money Flow tracks authorization/clearing snapshots, matched settlement, refund and
+dispute records. Historical authorization and clearing stages are explicitly
+inferred synthetic snapshots, not observed bank events. Settlement comparisons
+subtract expected fees, so clean transactions have no false gap. Pending exposure
+and excess settlements are separate from realized loss. APIs:
+`GET /api/money-flow/summary`, `GET /api/money-flow/{transaction_id}`.
+
 **A synthetic payment operations control tower: one ledger, reviewable agents, human financial control.**
 
 Paytm Build for India AI Hackathon - Track 3: Autonomous AI Teammates.

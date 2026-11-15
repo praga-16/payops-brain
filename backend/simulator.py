@@ -92,6 +92,8 @@ def seed(count: int = 160, seed_value: int = 42, path: Path | str | None = None)
             truth.execute('CREATE TABLE IF NOT EXISTS ground_truth_labels '
                           '(transaction_id TEXT PRIMARY KEY, break_type TEXT, fraud INTEGER, dispute_won INTEGER)')
             truth.executemany('INSERT OR IGNORE INTO ground_truth_labels VALUES(?,?,?,?)', labels)
+    from backend.moneyflow import backfill
+    backfill(target)
     return {'run_id': run_id, 'count': count, 'created': True}
 
 

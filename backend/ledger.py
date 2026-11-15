@@ -103,6 +103,8 @@ def initialize(path: Path | str | None = None) -> None:
     with connect(path) as conn:
         conn.execute('PRAGMA journal_mode=WAL')
         conn.executescript(SCHEMA)
+    from backend.moneyflow import backfill
+    backfill(path)
 
 
 def records(table: str, path: Path | str | None = None) -> list[dict]:

@@ -17,6 +17,8 @@ from backend.api import router as control_tower_router
 from backend import audit
 initialize()
 app.include_router(control_tower_router)
+from backend.insights_api import router as insights_router
+app.include_router(insights_router)
 app.add_middleware(CORSMiddleware, allow_origins=(os.getenv('CORS_ORIGINS') or
                    'http://localhost:5173,http://127.0.0.1:5173').split(','),
                    allow_methods=['GET', 'POST'], allow_headers=['Content-Type'])
