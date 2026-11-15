@@ -37,6 +37,8 @@ def backfill(path=None) -> None:
             conn.execute('INSERT OR IGNORE INTO payment_details VALUES(?,?,?,?,?)',
                          (tx['id'],f'SYN-BIN-{bucket:02}' if tx['rail']=='CARD' else 'N/A',
                           f'SYN-ISSUER-{bucket:02}', 'tok_syn_'+digest[:12] if tx['rail']=='CARD' else '',None))
+        from backend.margins import snapshot
+        snapshot(conn)
 
 
 def flow(transaction_id: str, path=None) -> dict:

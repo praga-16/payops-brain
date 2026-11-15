@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 AgentAction = Literal['RECONCILE', 'INVESTIGATE', 'REFUND_REVIEW', 'FIGHT', 'ACCEPT',
                       'MERCHANT_REVIEW', 'RESTRICT_PAYMENTS', 'KILL_SWITCH',
-                      'ARBITRATION', 'WRITE_OFF', 'POLICY_CHANGE', 'NO_ACTION']
+                      'ARBITRATION', 'WRITE_OFF', 'POLICY_CHANGE', 'NO_ACTION', 'RAISE_CLAIM']
 
 
 class Decision(BaseModel):
@@ -41,7 +41,7 @@ class Policy:
                    Decimal(os.getenv('WRITE_OFF_LIMIT') or '5000'))
 
     def gate(self, decision: Decision) -> str:
-        mandatory = {'KILL_SWITCH', 'ARBITRATION', 'POLICY_CHANGE', 'RESTRICT_PAYMENTS'}
+        mandatory = {'KILL_SWITCH', 'ARBITRATION', 'POLICY_CHANGE', 'RESTRICT_PAYMENTS', 'RAISE_CLAIM'}
         if (decision.action in mandatory or decision.amount >= self.high_value or
                 decision.action == 'WRITE_OFF' and decision.amount > self.write_off):
             return 'EXPERT_QUEUE'

@@ -9,6 +9,14 @@ subtract expected fees, so clean transactions have no false gap. Pending exposur
 and excess settlements are separate from realized loss. APIs:
 `GET /api/money-flow/summary`, `GET /api/money-flow/{transaction_id}`.
 
+Profit & Margin ranks synthetic merchant/rail/BIN fee revenue, actual fee cost,
+potential leakage exposure and modeled net margin, with ledger reasons. Configure
+new-payment rates with `SYNTHETIC_EARNED_FEE_BPS` (250) and
+`SYNTHETIC_PAID_FEE_BPS` (200); existing contracts retain their snapshots. Missing
+settlements remain pending, and realized dispute losses require explicit entries.
+Fee Audit creates human-only RAISE_CLAIM suggestions with rail population z-scores
+and sample counts. Margin explanations use the existing English/Hindi/Tamil fact gate.
+
 **A synthetic payment operations control tower: one ledger, reviewable agents, human financial control.**
 
 Paytm Build for India AI Hackathon - Track 3: Autonomous AI Teammates.

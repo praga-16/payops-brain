@@ -47,7 +47,8 @@ def seed(count: int = 160, seed_value: int = 42, path: Path | str | None = None)
             if anomaly == 'CHARGEBACK':
                 rail = 'UPI'
             amount = rng.randrange(10000, 2500000)
-            expected_fee = amount * 2 // 100
+            from backend.margins import rates
+            expected_fee = amount * rates()['paid_bps'] // 10000
             stamp = base + timedelta(seconds=i * 240)
             if anomaly == 'FRAUD_SUSPECTED':
                 stamp = base + timedelta(seconds=(i // 16) * 2)

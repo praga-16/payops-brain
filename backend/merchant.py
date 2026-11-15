@@ -33,6 +33,17 @@ def chat(merchant_id: str, question: str, language: str = 'en', *, transaction_i
         raise ValueError('Supported languages: en, hi, ta')
     facts=merchant_facts(merchant_id,path,transaction_id)
     question=question.lower()
+    if facts and any(t in question for t in ('profit','margin','leakage','fees','लाभ','शुल्क','லாபம்','கட்டணம்')):
+        from backend.margins import margin_rows
+        rows=[r for r in margin_rows(path) if r['merchant_id']==merchant_id and (transaction_id is None or r['transaction_id']==transaction_id)]
+        computed={k:sum(r[k] for r in rows) for k in ('fees_paid_paise','fees_earned_paise','leakage_paise','net_margin_paise','dispute_losses_paise')}
+        labels={'en':['Synthetic fees paid','Synthetic fees earned','Synthetic leakage exposure','Synthetic net margin','Synthetic recorded dispute losses'],
+                'hi':['सिंथेटिक भुगतान शुल्क','सिंथेटिक अर्जित शुल्क','सिंथेटिक रिसाव जोखिम','सिंथेटिक शुद्ध मार्जिन','सिंथेटिक दर्ज विवाद हानि'],
+                'ta':['செயற்கை செலுத்திய கட்டணம்','செயற்கை ஈட்டிய கட்டணம்','செயற்கை கசிவு அபாயம்','செயற்கை நிகர லாபம்','செயற்கை பதிவான சர்ச்சை இழப்பு']}[language]
+        sentences=[f'{label}: INR {money(value)}.' for label,value in zip(labels,computed.values())]
+        return {**explain(sentences,facts=computed,language=language,task='Compose approved synthetic margin facts.'),
+                'facts':computed,'confidence':.9,'routed_to_analyst':False,
+                'limitation':'Modeled synthetic margin and exposure; not actual recovered cash or a root-cause conclusion.'}
     supported=any(token in question for token in ('settle','payment','disput','upi','short','reconcil',
                                                   'भुगतान','सेटल','विवाद','குறை','தீர்வு','பணம்','செட்டில்'))
     unknown_time=any(token in question for token in ('when','कब','எப்போது'))
