@@ -17,10 +17,20 @@ def main() -> None:
     args=parser.parse_args()
     print('Synthetic batch:',seed(args.count,args.seed))
     print('New agent decisions:',run_agents())
+    from backend.incidents import trigger
+    for index,scenario in enumerate(('upi-bank-outage','duplicate-settlement-file','fee-rate-change','card-fraud-burst')):
+        incident=trigger(scenario,count=16,seed_value=4200+index)
+        print('Synthetic incident:',incident['scenario'],incident['batch']['created'])
+    from backend.earned_autonomy import assess
+    print('Autonomy assessment:',assess()['created'],'human-only proposals; no policy automatically relaxed')
     report=run_evaluation()
     print('Evaluation:',report['transaction_count'],'transactions;',report['case_count'],'cases')
     print('Open review cases:',summary()['open_cases'])
+    from backend.extension_evaluation import save
+    extended=save()
+    print('Extension validation:',extended['transaction_count'],'synthetic transactions; card-like findings:',extended['security_database_findings'])
     print('Ready. Start backend.main:app and the Vite frontend, or use docker compose up --build.')
+    print('Guided demo: http://localhost:8080/?view=Guided%20Demo (Vite: http://127.0.0.1:5173/?view=Guided%20Demo)')
 
 
 if __name__=='__main__':main()

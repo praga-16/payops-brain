@@ -70,6 +70,10 @@ def flow(transaction_id: str, path=None, *, source: dict | None = None) -> dict:
     expected=max(0,clearing-tx['fee_paise']) if clearing is not None else None
     gap=None if expected is None else expected-settled
     kind=classify(tx,matched,refunds,fees,disputes)
+    if authorization is None or clearing is None:
+        kind='LIFECYCLE_INCOMPLETE'
+    elif kind=='CLEAN' and (authorization!=clearing or gap):
+        kind='AMOUNT_MISMATCH'
     for s in matched:
         events.append({'id':s['id'],'stage':'SETTLEMENT','amount_paise':s['amount_paise'],
                        'occurred_at':s['settled_at'],'status':s['status'],'source':'settlement ledger'})

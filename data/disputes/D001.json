@@ -6,7 +6,7 @@
     "reason": "duplicate debit",
     "customer_name": "Synthetic Person 01",
     "phone": "0000000001",
-    "card": "0000 0000 0000 0001",
+    "card": "**** **** **** 0001",
     "upi_id": "person1@synthetic"
   },
   "expected_action": "REFUND",

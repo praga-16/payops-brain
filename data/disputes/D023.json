@@ -6,7 +6,7 @@
     "reason": "already refunded",
     "customer_name": "Synthetic Person 23",
     "phone": "0000000023",
-    "card": "0000 0000 0000 0023",
+    "card": "**** **** **** 0023",
     "upi_id": "person23@synthetic"
   },
   "expected_action": "NO_ACTION",

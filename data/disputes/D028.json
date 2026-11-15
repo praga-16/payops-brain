@@ -6,7 +6,7 @@
     "reason": "clean",
     "customer_name": "Synthetic Person 28",
     "phone": "0000000028",
-    "card": "0000 0000 0000 0028",
+    "card": "**** **** **** 0028",
     "upi_id": "person28@synthetic"
   },
   "expected_action": "NO_ACTION",

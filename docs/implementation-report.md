@@ -1,5 +1,8 @@
 # PayOps Brain implementation report
 
+Historical report for build 163cc47. For the newer eight-phase extension and
+current status, see [EXTENSION_STATUS.md](EXTENSION_STATUS.md) and [extensions.md](extensions.md).
+
 Validation date: 2026-11-15 (Asia/Calcutta). Scope: a local synthetic prototype,
 not production payments, regulatory validation or a real-world ML benchmark.
 Existing work started at 47a50dc on main with a clean tree. Original routes,

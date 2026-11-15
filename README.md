@@ -56,6 +56,40 @@ automatically raises the threshold to .99 (safer), with an audit event. It never
 automatically lowers a threshold or enables restricted actions. Historical cases
 are unchanged. Review agreement is not proof of financial correctness.
 
+Security adds a card-like pattern scan over the SQLite ledger, rejection of
+unmasked card-like JSON input and defensive JSON response masking. Synthetic card
+references are tokens or masked last-four values, including regenerated legacy
+fixtures. Tests scan DB values, captured logs and API responses for standalone
+13–19-digit card patterns (including spaces/hyphens), excluding decimal fractions
+and embedded hashes/IDs. This is not PCI certification or comprehensive DLP.
+
+Optional merchant speech is **off by default**. Set `PAYOPS_SARVAM_VOICE=true` in
+the process environment to enable it when a Sarvam key exists and mock mode is off.
+STT uses `saaras:v3`, multipart `/speech-to-text`, `language_code=unknown`; TTS uses
+`bulbul:v3`, JSON `/text-to-speech`, `language_code`, WAV at 16 kHz. Configure
+`SARVAM_STT_MODEL`, `SARVAM_TTS_MODEL`, `SARVAM_VOICE_BASE_URL` if needed. WAV
+transcription is limited locally to 30 seconds. Spoken answers are regenerated
+from ledger facts through the exact-sentence gate; arbitrary spoken financial
+text cannot be supplied by the client. Audio is not persisted. The physical
+microphone remains unverified; live loopback results, if run, are in
+`reports/speech_check.json`. Opt in using `python scripts/check_sarvam_speech.py --live`.
+
+The generated synthetic TTS→STT loopback passed English, Hindi and Tamil on
+2026-11-15 with correct detected languages. This verifies a file-based provider
+path, not a microphone, speaker playback, real-user speech quality or production
+accuracy. Voice remains feature-flagged off unless explicitly enabled.
+
+`make demo` now seeds all four repeatable incident types, runs the new agents,
+queues autonomy proposals without applying them, and saves extension evaluation.
+Open `/?view=Guided%20Demo` for links through every tested extension. `make eval`
+also runs `scripts/eval_extensions.py`. See [two-minute demo](docs/DEMO_SCRIPT.md),
+[extension measurements](reports/extensions_eval.md), and [phase log](docs/extensions.md).
+New measured results on seed 916: 288/288 clean lifecycle checks, 96/96 injected
+stage-gap detections, and 64/64 fee-discrepancy detections with no extra claims.
+The report includes Wilson intervals and sample counts. A synthetic outage trial
+proposes a 10% shift with about 6.37 percentage points of modeled uplift; no route
+was changed, and no production gain is claimed.
+
 **A synthetic payment operations control tower: one ledger, reviewable agents, human financial control.**
 
 Paytm Build for India AI Hackathon - Track 3: Autonomous AI Teammates.
@@ -72,8 +106,9 @@ docker compose up --build
 ```
 
 Open **http://localhost:8080**; backend docs: http://localhost:8000/docs.
-Startup seeds 160 synthetic payments, runs the agents, and computes a separate
-512-transaction evaluation. SQLite and audit history persist in `payops-data`.
+Startup seeds the original 160 synthetic payments plus four repeatable incident
+batches, runs the agents, and computes separate 512-transaction evaluations.
+SQLite and audit history persist in `payops-data`.
 The seed command is idempotent and never clears prior reviews or audit events.
 Use a different simulator seed for another batch. `docker compose down` preserves
 its volume. To avoid occupied ports set `BACKEND_PORT` / `FRONTEND_PORT` in the shell.
@@ -252,7 +287,7 @@ that ignores speech content. Live errors in the original Meta graph escalate and
 never silently fall back. A saved historical [live Meta report](eval_results_live.md)
 is retained; it does not verify Baseten or real voice.
 
-Voice UI/upload remains available for compatibility. Live voice and a physical
+Original Muse Voice UI/upload remains available for compatibility. Live Muse Voice and a physical
 microphone are unverified; do not present them as working speech recognition.
 Supported audio: mono 16-bit PCM WAV, 16/24 kHz, at most 120 seconds / 10 MB.
 Browser recordings convert to mono 24 kHz. No audio is persisted.
@@ -355,10 +390,10 @@ customer data. No production settlement/network integration, legal/network-speci
 rules, real refunds, certified PII anonymization, authentication or deployment is
 claimed. Redaction protects later draft context; original images/text go to the
 configured extraction/redaction services. Hosted Baseten is not private hosting.
-Live Meta/Baseten/voice entitlement remains unverified in this session.
+Live Meta/Baseten/Muse Voice entitlement remains unverified in this session.
 
-Routing, fee-audit agent, KYC and credit agents are **not implemented**. Fee
-mismatches are detected by reconciliation; there is no separate fee-audit agent.
+Routing advice and the dedicated fee-audit agent are implemented in the extensions
+above. KYC and credit agents remain **not implemented**.
 ML models train from small synthetic priors and are rebuilt deterministically in
 process; calibration parameters and feedback persist. The audit chain lacks an
 external checkpoint. No demo video has been recorded.

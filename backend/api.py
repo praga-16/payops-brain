@@ -74,7 +74,8 @@ def agents():
             {'name':'dispute','implementation':'evidence checklist + logistic win estimate','mode':'local; provider draft on request'},
             {'name':'fraud','implementation':'Isolation Forest + velocity/refund rules','mode':'local'},
             {'name':'fee_audit','implementation':'fee contracts + rail sample outliers','mode':'local'},
-            {'name':'routing','implementation':'contextual LinUCB; suggestions only','mode':'local'}]
+            {'name':'routing','implementation':'contextual LinUCB; suggestions only','mode':'local'},
+            {'name':'autonomy','implementation':'measured quality proposals; safer-only rollback','mode':'local'}]
 
 
 @router.get('/agents/activity')

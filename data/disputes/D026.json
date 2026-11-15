@@ -6,7 +6,7 @@
     "reason": "failed but debited",
     "customer_name": "Synthetic Person 26",
     "phone": "0000000026",
-    "card": "0000 0000 0000 0026",
+    "card": "**** **** **** 0026",
     "upi_id": "person26@synthetic"
   },
   "expected_action": "REFUND",

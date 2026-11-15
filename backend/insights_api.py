@@ -1,10 +1,59 @@
 """Additive synthetic intelligence routes; no existing API is replaced."""
-from fastapi import APIRouter,Query
+from fastapi import APIRouter,Query,UploadFile,File,HTTPException
 from pydantic import BaseModel,Field
 from backend.api import guarded
 from backend.moneyflow import flow, flow_summary
 
 router=APIRouter(prefix='/api')
+
+
+@router.get('/security/status')
+def security_status():
+    from backend.security import scan_database
+    return scan_database()
+
+
+@router.get('/merchant-assistant/voice/status')
+def voice_status():
+    from backend.sarvam_voice import status
+    return status()
+
+
+def speech_guard(fn,*args,**kwargs):
+    from backend.providers.base import ProviderError
+    try:return fn(*args,**kwargs)
+    except ProviderError as exc:raise HTTPException(503,str(exc)) from None
+    except ValueError as exc:raise HTTPException(422,str(exc)) from None
+
+
+@router.post('/merchant-assistant/voice/transcribe')
+def merchant_transcription(audio: UploadFile = File(...)):
+    from backend.sarvam_voice import transcribe
+    from backend.voice import MAX_BYTES
+    try:
+        result=speech_guard(transcribe,audio.file.read(MAX_BYTES+1))
+        from backend import audit
+        from backend.ledger import connect
+        with connect() as c:audit.append(c,'SPEECH_TRANSCRIBED','voice-input',{'language':result['language'],'provider':'sarvam','mode':'live','audio_persisted':False})
+        return result
+    finally:audio.file.close()
+
+
+from backend.api import ChatBody,merchant_chat
+
+
+@router.post('/merchant-assistant/voice/speak')
+def merchant_speech(body: ChatBody):
+    from backend.sarvam_voice import require_enabled,synthesize
+    speech_guard(require_enabled)
+    # The client cannot supply spoken financial text; regenerate from the ledger
+    # and the existing exact-sentence gate before speech synthesis.
+    answer=merchant_chat(body)
+    audio=speech_guard(synthesize,answer['text'],body.language)
+    from backend import audit
+    from backend.ledger import connect
+    with connect() as c:audit.append(c,'SPEECH_SYNTHESIZED',body.merchant_id,{'language':body.language,'provider':'sarvam','grounded':answer['grounded'],'audio_persisted':False})
+    return {'answer':answer,**audio}
 
 
 @router.get('/autonomy/ramp')

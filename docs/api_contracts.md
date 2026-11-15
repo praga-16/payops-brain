@@ -1,5 +1,18 @@
 # API verification log
 
+## Sarvam merchant speech (2026-11-15)
+
+Official contracts: https://docs.sarvam.ai/api-reference/speech-to-text/transcribe
+and https://docs.sarvam.ai/api-reference/text-to-speech/convert.
+STT is multipart POST `/speech-to-text`, `file`, `model=saaras:v3`,
+`mode=transcribe`, `language_code=unknown`; response includes transcript and
+detected language_code. TTS is JSON POST `/text-to-speech`, `text`,
+`language_code=en-IN/hi-IN/ta-IN`, `model=bulbul:v3`, sample rate 16000,
+WAV codec; response audios contains base64 WAV. Both use api-subscription-key.
+Generated synthetic TTS→STT loopback succeeded for en/hi/ta; no physical microphone
+was tested. The public flag defaults off. Newer documented v4 models were not
+tested or selected. No audio or key was persisted in the report.
+
 Sarvam contract checked against https://docs.sarvam.ai/api-reference/chat/chat-completions-v1
 and https://docs.sarvam.ai/api-reference/authentication on 2026-11-15:
 `POST https://api.sarvam.ai/v1/chat/completions`, `api-subscription-key` header,

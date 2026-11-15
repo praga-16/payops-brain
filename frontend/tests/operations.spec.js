@@ -46,3 +46,16 @@ test('earned autonomy displays measured quality and approved-only changes',async
  await expect(page.getByRole('status').filter({hasText:'Approve proposals in Review Queue.'})).toBeVisible({timeout:60000});
  await expect(page.getByText(/No automatic increase in autonomy/).first()).toBeVisible();
 });
+test('security scan and default-off speech controls',async({page})=>{
+ await page.goto('/');await page.getByRole('navigation').getByRole('button',{name:'Security',exact:true}).click();
+ await expect(page.getByRole('status').filter({hasText:'Card-like findings: 0.'})).toBeVisible({timeout:30000});
+ await page.getByRole('navigation').getByRole('button',{name:'Merchant Assistant',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Upload synthetic WAV'})).toBeDisabled();
+ await expect(page.getByText(/Physical microphone is unverified/)).toBeVisible();
+});
+test('guided demo links open actual operational views',async({page})=>{
+ await page.goto('/?view=Guided%20Demo');
+ await expect(page.getByRole('heading',{name:'Guided synthetic operations walkthrough'})).toBeVisible();
+ await page.getByRole('link',{name:'Money Flow',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Synthetic transaction lifecycle'})).toBeVisible();
+});

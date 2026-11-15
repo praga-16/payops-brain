@@ -25,7 +25,7 @@ def generate(count=30):
         day = '2026-06-01' if scenario == 'outside_window' else '2026-11-01'
         fields = dict(transaction_id=tid, amount=str(amount), date=day,
                       reason=scenario.replace('_', ' '), customer_name=f'Synthetic Person {i:02}',
-                      phone=f'00000{i:05}', card=f'0000 0000 0000 {i:04}', upi_id=f'person{i}@synthetic')
+                      phone=f'00000{i:05}', card=f'**** **** **** {i:04}', upi_id=f'person{i}@synthetic')
         if scenario != 'unknown_txn':
             status = 'REFUNDED' if slot == 1 else 'FAILED_DEBITED' if slot == 4 else 'SETTLED'
             ledger.append(dict(id=f'L{i:03}A', transaction_id=tid, amount=str(amount + (50 if slot == 2 else 0)),

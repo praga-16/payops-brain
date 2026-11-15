@@ -13,7 +13,7 @@ COPY tests ./tests
 COPY pytest.ini ./
 COPY Dockerfile compose.yaml Makefile .dockerignore ./
 COPY frontend/nginx.conf ./frontend/nginx.conf
-RUN mkdir -p /app/runtime && useradd --create-home payops && chown -R payops:payops /app
+RUN mkdir -p /app/runtime /app/reports && useradd --create-home payops && chown -R payops:payops /app
 USER payops
 EXPOSE 8000
 CMD ["sh", "-c", "python -m backend.demo && python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000"]

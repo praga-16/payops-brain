@@ -22,6 +22,7 @@ def test_lifecycle_clean_and_injected_gaps(ledger):
     with connect(ledger) as c:
         c.execute("UPDATE lifecycle_events SET amount_paise=amount_paise-100 WHERE transaction_id='SIM-72-32-T00009' AND stage='CLEARING'")
     assert flow('SIM-72-32-T00009',ledger)['authorization_clearing_gap_paise']==100
+    assert flow('SIM-72-32-T00009',ledger)['likely_cause']=='AMOUNT_MISMATCH'
 
 
 def test_migration_idempotent_and_api(ledger):

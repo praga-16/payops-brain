@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "physical_microphone_verified": false,
+  "results": [
+    {
+      "language": "en",
+      "detected": "en",
+      "passed": true,
+      "source": "generated synthetic speech; no microphone",
+      "audio_persisted": false
+    },
+    {
+      "language": "hi",
+      "detected": "hi",
+      "passed": true,
+      "source": "generated synthetic speech; no microphone",
+      "audio_persisted": false
+    },
+    {
+      "language": "ta",
+      "detected": "ta",
+      "passed": true,
+      "source": "generated synthetic speech; no microphone",
+      "audio_persisted": false
+    }
+  ]
+}

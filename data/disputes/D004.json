@@ -6,7 +6,7 @@
     "reason": "outside window",
     "customer_name": "Synthetic Person 04",
     "phone": "0000000004",
-    "card": "0000 0000 0000 0004",
+    "card": "**** **** **** 0004",
     "upi_id": "person4@synthetic"
   },
   "expected_action": "ESCALATE",

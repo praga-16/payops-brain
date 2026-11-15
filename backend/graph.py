@@ -14,7 +14,8 @@ from backend.redact import redact_context
 
 
 def read_data(name):
-    return json.loads((ROOT / 'data' / name).read_text(encoding='utf-8'))
+    from backend.security import sanitize
+    return sanitize(json.loads((ROOT / 'data' / name).read_text(encoding='utf-8')))
 
 
 class CaseState(TypedDict, total=False):
