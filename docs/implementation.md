@@ -93,3 +93,15 @@ drafts; live provider drafts require an explicit request. 114 Python tests,
 simulation, chargeback approval, correction, calibration, audit, original notice
 workflow and mobile viewport overflow. A browser-only badge rendering crash was
 found and fixed before proceeding.
+
+## Phase 8
+
+Separate held-out ledger seed 916 contains 512 transactions and 608 agent cases.
+Rules-only/assisted auto-match rates: .625/.8125; classification: .6875/1.0;
+win AUC: .5/.6745 (32 outcomes); fraud precision .5 and recall 1.0 for both;
+human review .7368/.6316; false auto-resolution observed 0 for both. Reports
+contain sample counts, Wilson intervals, exact training provenance and generator
+limitations. 115 tests passed. The simulator now includes normalized and noisy
+references to exercise assisted matching; Windows SQLite handle cleanup was fixed.
+Optional routing/KYC/credit agents are not implemented; they are outside the
+required eight phases and add no validated value to this demo.

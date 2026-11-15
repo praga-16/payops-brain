@@ -169,6 +169,12 @@ def evaluation_report():
         return {'report':json.loads(row[0]) if row else None,'calibration':latest(conn)}
 
 
+@router.post('/evaluation/run')
+def run_eval():
+    from backend.evaluation import run_evaluation
+    return run_evaluation()
+
+
 @router.post('/review-queue/{case_id}/approve')
 def approve_case(case_id: str, body: ReviewBody):
     return guarded(review_case,case_id,'APPROVE',version=body.version,comment=body.comment)

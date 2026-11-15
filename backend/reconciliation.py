@@ -97,6 +97,35 @@ def classify(tx: dict, matched: list[dict], refunds: list[dict], fees: list[dict
     return 'CLEAN'
 
 
+def break_features(tx: dict, matched: list[dict], refunds: list[dict], fees: list[dict], disputes: list[dict]) -> list[float]:
+    expected=max(1,tx['amount_paise']-tx['fee_paise'])
+    return [len(matched),(sum(s['amount_paise'] for s in matched)-expected)/expected,
+            sum(r['amount_paise'] for r in refunds)/tx['amount_paise'],
+            (sum(f['amount_paise'] for f in fees)-tx['fee_paise'])/max(1,tx['fee_paise']),
+            float(bool(disputes)),tx['device_risk']]
+
+
+@lru_cache(maxsize=1)
+def break_model() -> GradientBoostingClassifier:
+    rng=random.Random(1702)
+    x,y=[],[]
+    classes=['CLEAN','MISSING_SETTLEMENT','SHORT_SETTLEMENT','DUPLICATE_SETTLEMENT',
+             'OVER_REFUND','FEE_MISMATCH','CHARGEBACK','FRAUD_SUSPECTED','AMOUNT_MISMATCH']
+    for kind in classes:
+        for _ in range(100):
+            row=[1,0,0,0,0,rng.uniform(.01,.25)]
+            if kind=='MISSING_SETTLEMENT':row[:2]=[0,-1]
+            if kind=='SHORT_SETTLEMENT':row[1]=-rng.uniform(.00005,.25)
+            if kind=='DUPLICATE_SETTLEMENT':row[:2]=[2,1]
+            if kind=='OVER_REFUND':row[2]=rng.uniform(1.0001,1.4)
+            if kind=='FEE_MISMATCH':row[3]=rng.uniform(.001,1)
+            if kind=='CHARGEBACK':row[4]=1
+            if kind=='FRAUD_SUSPECTED':row[5]=rng.uniform(.85,1)
+            if kind=='AMOUNT_MISMATCH':row[1]=rng.uniform(.001,.3)
+            x.append(row);y.append(kind)
+    return GradientBoostingClassifier(n_estimators=40,max_depth=2,random_state=1702).fit(x,y)
+
+
 def analyze(path=None, *, assisted: bool = True) -> list[dict]:
     tables = {name:records(name,path) for name in ('transactions','settlements','refunds','fees','disputes')}
     results=[]
@@ -105,14 +134,17 @@ def analyze(path=None, *, assisted: bool = True) -> list[dict]:
         related = {name:[r for r in tables[name] if r['transaction_id']==tx['id']]
                    for name in ('refunds','fees','disputes')}
         kind=classify(tx,matched,**related)
+        ml_features=break_features(tx,matched,**related)
+        predicted=str(break_model().predict([ml_features])[0]) if assisted else kind
         evidence=[tx['id']]+[r['id'] for r in matched]+[r['id'] for rows in related.values() for r in rows]
-        clean=kind=='CLEAN'
+        clean=kind==predicted=='CLEAN'
         decision=Decision(action='RECONCILE' if clean else 'INVESTIGATE',
                           confidence=confidence if clean else .88 if matched else .65,
                           reasoning=f'{kind}: {method}. Gross, expected fee and observed net checked in paise.',
                           evidence=evidence,amount=money(tx['amount_paise']),case_id='REC-'+tx['id'])
         results.append({'decision':decision.model_dump(mode='json'),'agent':'reconciliation',
                         'transaction_id':tx['id'],'break_type':kind,'match_method':method,
+                        'ml_break_type':predicted,'match_score':confidence,'classifier_features':ml_features,
                         'matched_ids':[s['id'] for s in matched],
                         'features':[float(clean),confidence,tx['device_risk']],
                         'provider':'deterministic rules + synthetic-trained gradient boosting',

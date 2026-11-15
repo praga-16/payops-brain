@@ -25,7 +25,7 @@ def test_all_breaks_and_evidence(tmp_path):
 
 def test_reference_priority_and_ambiguous_candidates(tmp_path):
     path=tmp_path/'ledger.db'; seed(32,42,path)
-    tx=records('transactions',path)[7]
+    tx=records('transactions',path)[9]
     original=next(s for s in records('settlements',path) if s['transaction_id']==tx['id'])
     assert match(tx,[original])[1]=='exact reference'
     normalized={**original,'transaction_id':None,'reference':tx['id'].lower().replace('-','')}

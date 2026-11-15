@@ -1,0 +1,94 @@
+{
+  "created_at": "2026-11-15T06:16:05.345957+00:00",
+  "test_seed": 916,
+  "as_of": "2026-11-15T00:00:00+00:00",
+  "transaction_count": 512,
+  "case_count": 608,
+  "baseline": {
+    "auto_match_rate": 0.625,
+    "break_classification_accuracy": 0.6875,
+    "dispute_win_auc": 0.5,
+    "fraud_precision": 0.5,
+    "fraud_recall": 1.0,
+    "human_review_rate": 0.7368421052631579,
+    "false_auto_resolution_rate": 0.0
+  },
+  "assisted": {
+    "auto_match_rate": 0.8125,
+    "break_classification_accuracy": 1.0,
+    "dispute_win_auc": 0.6744791666666667,
+    "fraud_precision": 0.5,
+    "fraud_recall": 1.0,
+    "human_review_rate": 0.631578947368421,
+    "false_auto_resolution_rate": 0.0
+  },
+  "sample_counts": {
+    "baseline": {
+      "classified": 512,
+      "correct": 352,
+      "fraud_alerts": 64,
+      "fraud_true_positives": 32,
+      "actual_fraud": 32,
+      "auto_resolutions": 160,
+      "false_auto_resolutions": 0,
+      "reviewed_cases": 448,
+      "total_agent_cases": 608,
+      "dispute_outcomes": 32,
+      "dispute_wins": 24,
+      "auto_linked_transactions": 320
+    },
+    "assisted": {
+      "classified": 512,
+      "correct": 512,
+      "fraud_alerts": 64,
+      "fraud_true_positives": 32,
+      "actual_fraud": 32,
+      "auto_resolutions": 224,
+      "false_auto_resolutions": 0,
+      "reviewed_cases": 384,
+      "total_agent_cases": 608,
+      "dispute_outcomes": 32,
+      "dispute_wins": 24,
+      "auto_linked_transactions": 416
+    }
+  },
+  "confidence_intervals": {
+    "baseline": {
+      "break_accuracy_95_wilson": [
+        0.6460793438632031,
+        0.7261279383722739
+      ],
+      "fraud_precision_95_wilson": [
+        0.38101888493214947,
+        0.6189811150678505
+      ],
+      "false_auto_resolution_95_wilson": [
+        0,
+        0.023447036650032713
+      ]
+    },
+    "assisted": {
+      "break_accuracy_95_wilson": [
+        0.9925527526279385,
+        1
+      ],
+      "fraud_precision_95_wilson": [
+        0.38101888493214947,
+        0.6189811150678505
+      ],
+      "false_auto_resolution_95_wilson": [
+        0,
+        0.01686083665142801
+      ]
+    }
+  },
+  "training": "Match GB: 1,200 synthetic pairs seed 1701; break GB: 900 synthetic vectors seed 1702; dispute logistic: 2,000 synthetic outcomes seed 732; Isolation Forest: 800 normal vectors seed 991. No holdout ledger IDs or labels are used in training or inference.",
+  "definitions": {
+    "auto_match_rate": "Reference links with match score >= .95 / all transactions; fuzzy suggestions remain reviewed.",
+    "false_auto_resolution_rate": "Incorrect CLEAN bookkeeping auto-resolutions / all auto-resolutions.",
+    "human_review_rate": "Non-auto decisions / reconciliation, dispute and fraud cases.",
+    "baseline": "Exact-reference reconciliation, deterministic break/fraud rules, constant win prior (.5 AUC).",
+    "assisted": "Normalized/fuzzy GB matching, GB break classification, logistic win estimate, Isolation Forest plus rules."
+  },
+  "limitations": "Synthetic-demo validation only. Training and test seeds differ but share generator assumptions. Heuristic confidence is not a calibrated real-world probability. Fraud labels identify injected bursts; over-refund alerts count as false positives for this narrow target. No OCR/LLM quality benchmark. Observed gains or losses do not imply production performance. Feedback calibration is reported separately."
+}

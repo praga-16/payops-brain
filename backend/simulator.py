@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import random
 import sqlite3
+from contextlib import closing
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -61,8 +62,11 @@ def seed(count: int = 160, seed_value: int = 42, path: Path | str | None = None)
                     net -= rng.randrange(100, max(101, net // 5))
                 # Some valid rows need reference normalization or candidate scoring.
                 reference = tid if i % 4 else tid.lower().replace('-', '')
+                fuzzy = i % 8 == 7
+                if fuzzy:
+                    reference = tid + 'x'
                 conn.execute('INSERT INTO settlements VALUES(?,?,?,?,?,?,?,?)',
-                             (f'{tid}-S1', tid if i % 4 else None, reference, merchant, rail,
+                             (f'{tid}-S1', tid if i % 4 and not fuzzy else None, reference, merchant, rail,
                               net, (stamp + timedelta(days=1)).isoformat(), 'SETTLED'))
                 if anomaly == 'DUPLICATE_SETTLEMENT':
                     conn.execute('INSERT INTO settlements VALUES(?,?,?,?,?,?,?,?)',
@@ -83,10 +87,11 @@ def seed(count: int = 160, seed_value: int = 42, path: Path | str | None = None)
                            int(rng.random() < probability)))
         audit.append(conn, 'SIMULATION_BATCH', run_id, {'count': count, 'seed': seed_value, 'synthetic': True})
     truth_path = target.with_name(target.stem + '.truth.sqlite3')
-    with sqlite3.connect(truth_path) as truth:
-        truth.execute('CREATE TABLE IF NOT EXISTS ground_truth_labels '
-                      '(transaction_id TEXT PRIMARY KEY, break_type TEXT, fraud INTEGER, dispute_won INTEGER)')
-        truth.executemany('INSERT OR IGNORE INTO ground_truth_labels VALUES(?,?,?,?)', labels)
+    with closing(sqlite3.connect(truth_path)) as truth:
+        with truth:
+            truth.execute('CREATE TABLE IF NOT EXISTS ground_truth_labels '
+                          '(transaction_id TEXT PRIMARY KEY, break_type TEXT, fraud INTEGER, dispute_won INTEGER)')
+            truth.executemany('INSERT OR IGNORE INTO ground_truth_labels VALUES(?,?,?,?)', labels)
     return {'run_id': run_id, 'count': count, 'created': True}
 
 
