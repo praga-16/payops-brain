@@ -28,3 +28,12 @@ labels are in a separate sibling .truth.sqlite3, unavailable through ledger APIs
 The common Decision contract, configurable policy and append-only hash-chained
 audit foundation are included. Only bookkeeping/no-action may auto-resolve;
 restricted actions require a person and no integration moves money.
+
+## Phase 2
+
+Exact and normalized reference matching precede guarded fuzzy/gradient-boosted
+scoring. Numeric reference identity, merchant, rail, amount and timing constrain
+candidates; ambiguous candidates are reviewed. Seven break classes use ledger
+invariants. Prediction persistence verifies cited IDs and ledger amounts before
+creating queue/audit rows. 91 tests passed; original smoke passed; /health remained
+available. No operational ground-truth labels are read by inference.
