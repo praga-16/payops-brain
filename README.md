@@ -17,6 +17,13 @@ settlements remain pending, and realized dispute losses require explicit entries
 Fee Audit creates human-only RAISE_CLAIM suggestions with rail population z-scores
 and sample counts. Margin explanations use the existing English/Hindi/Tamil fact gate.
 
+Rupee Impact (`GET /api/impact`) separates observed exposure, label-validated
+synthetic exposure, recorded synthetic recovery and model-expected dispute recovery.
+It compares reconciliation review workload with rules-only and converts estimated
+touches saved using `MINUTES_PER_ANALYST_TOUCH` (5). Per-100,000 scaling and all
+assumptions are displayed. It does not treat approval as recovery or hours as measured
+staff productivity. Only this reporting code may read the isolated synthetic labels.
+
 **A synthetic payment operations control tower: one ledger, reviewable agents, human financial control.**
 
 Paytm Build for India AI Hackathon - Track 3: Autonomous AI Teammates.

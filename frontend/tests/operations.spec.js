@@ -16,3 +16,8 @@ test('profit rankings show ledger reasons and fee audit works',async({page})=>{
  await page.getByRole('button',{name:'Run fee audit'}).click();
  await expect(page.getByText('Synthetic fee audit completed; recommendations are in Review Queue.')).toBeVisible();
 });
+test('impact shows assumptions beside computed synthetic values',async({page})=>{
+ await page.goto('/');await page.getByRole('navigation').getByRole('button',{name:'Rupee Impact',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Synthetic rupee impact and assumptions'})).toBeVisible();
+ await expect(page.getByText('Resolved amounts require synthetic recovery ledger entries; approvals alone never count.')).toBeVisible();
+});

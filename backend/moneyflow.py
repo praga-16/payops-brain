@@ -39,6 +39,8 @@ def backfill(path=None) -> None:
                           f'SYN-ISSUER-{bucket:02}', 'tok_syn_'+digest[:12] if tx['rail']=='CARD' else '',None))
         from backend.margins import snapshot
         snapshot(conn)
+        from backend.impact import ensure
+        ensure(conn)
 
 
 def flow(transaction_id: str, path=None) -> dict:

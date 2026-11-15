@@ -13,3 +13,5 @@ the existing gate/audit and constrained multilingual margin explanations.
 125 Python tests passed, one Docker skip; 2 extension browser tests, build and
 original smoke passed. Fee excess is counted once; loss/recovery is not inferred
 from an analyst approval. Statistical fee flags show sample size and z-score.
+
+Phase 3: reporting-only rupee impact, label coverage, recovery ledger, expected recovery and explicit workload/scaling assumptions. 126 Python tests passed (one Docker skip), 3 extension Playwright tests, build and original smoke passed.

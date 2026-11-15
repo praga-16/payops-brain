@@ -6,6 +6,12 @@ from backend.moneyflow import flow, flow_summary
 router=APIRouter(prefix='/api')
 
 
+@router.get('/impact')
+def rupee_impact():
+    from backend.impact import impact_report
+    return guarded(impact_report)
+
+
 @router.get('/profit')
 def profit():
     from backend.margins import profit_summary
