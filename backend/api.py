@@ -180,7 +180,10 @@ def evaluation_report():
 @router.post('/evaluation/run')
 def run_eval():
     from backend.evaluation import run_evaluation
-    return run_evaluation()
+    result=run_evaluation()
+    from backend.earned_autonomy import monitor_quality
+    monitor_quality()
+    return result
 
 
 @router.post('/review-queue/{case_id}/approve')

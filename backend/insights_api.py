@@ -7,6 +7,18 @@ from backend.moneyflow import flow, flow_summary
 router=APIRouter(prefix='/api')
 
 
+@router.get('/autonomy/ramp')
+def autonomy_ramp():
+    from backend.earned_autonomy import history
+    return history()
+
+
+@router.post('/autonomy/assess')
+def assess_autonomy():
+    from backend.earned_autonomy import assess
+    return guarded(assess)
+
+
 @router.get('/bin-intelligence')
 def bins():
     from backend.routing import bin_report

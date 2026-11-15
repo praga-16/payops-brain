@@ -46,6 +46,16 @@ separately seeded counterfactual route trials. `ROUTING_MIN_SAMPLES` (30) and
 injected outage is a simulated weighted estimate, not a measured production gain.
 ROUTING_CHANGE always requires expert human approval, which records advice only.
 
+Earned Autonomy tracks type-level human review agreement separately from held-out
+synthetic correctness, with counts and Wilson intervals. `AUTONOMY_QUALITY_FLOOR`
+defaults to .95 and `AUTONOMY_MIN_REVIEWS` to 20. Assessments create POLICY_CHANGE
+Decisions; approving one applies a version-checked type threshold to future cases.
+More autonomy requires both quality lower bounds and sufficient reviews, and only
+CLEAN bookkeeping is eligible. If measured quality drops after approval, assessment
+automatically raises the threshold to .99 (safer), with an audit event. It never
+automatically lowers a threshold or enables restricted actions. Historical cases
+are unchanged. Review agreement is not proof of financial correctness.
+
 **A synthetic payment operations control tower: one ledger, reviewable agents, human financial control.**
 
 Paytm Build for India AI Hackathon - Track 3: Autonomous AI Teammates.

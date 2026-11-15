@@ -37,8 +37,11 @@ def save_result(conn, result: dict) -> bool:
         decision=decision.model_copy(update={'confidence':calibrated(decision.confidence,model)})
         result['decision']=decision.model_dump(mode='json')
         result['calibration_feedback_count']=model['feedback_count']
-    tier=Policy.configured().gate(decision)
     policy=Policy.configured()
+    from backend.earned_autonomy import case_type,threshold_for
+    required=threshold_for(conn,case_type(result),policy.auto)
+    tier=Policy(auto=required,review=min(policy.review,required),high_value=policy.high_value,write_off=policy.write_off).gate(decision)
+    result['applied_auto_threshold']=required
     snapshot={'auto':policy.auto,'review':policy.review,'high_value':str(policy.high_value),'write_off':str(policy.write_off)}
     previous=conn.execute("SELECT payload FROM model_registry WHERE name='review_policy' ORDER BY id DESC LIMIT 1").fetchone()
     if previous is None or json.loads(previous[0])!=snapshot:
@@ -103,11 +106,18 @@ def review_case(case_id: str, action: str, *, version: int, comment: str = '',
         status={'APPROVE':'APPROVED','REJECT':'REJECTED','EDIT':'EDITED'}[action]
         if original['agent']=='dispute':
             conn.execute('UPDATE disputes SET status=? WHERE transaction_id=?',('REVIEWED',original['transaction_id']))
+        if original['agent']=='autonomy' and action=='APPROVE':
+            from backend.earned_autonomy import apply_approved
+            apply_approved(conn,original)
         conn.execute('UPDATE review_queue SET status=?,version=version+1,updated_at=? WHERE case_id=?',
                      (status,utcnow(),case_id))
         audit.append(conn,'HUMAN_'+action,case_id,{'original_prediction':original['decision'],
                      'corrected_decision':corrected,'comment':comment,'payment_executed':False})
-        return {'case_id':case_id,'status':status,'version':version+1,'payment_executed':False}
+        result={'case_id':case_id,'status':status,'version':version+1,'payment_executed':False}
+    if original['agent']!='autonomy':
+        from backend.earned_autonomy import monitor_quality
+        monitor_quality(path)
+    return result
 
 
 def kill_switch(case_id: str, *, approve: bool, confirmed: bool = False, path=None) -> dict:

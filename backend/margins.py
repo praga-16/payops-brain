@@ -8,7 +8,7 @@ import statistics
 
 from backend.decision import Decision
 from backend.ledger import connect,records,money
-from backend.moneyflow import flow
+from backend.moneyflow import flow,flow_data
 
 
 def rates() -> dict:
@@ -38,8 +38,9 @@ def margin_rows(path=None) -> list[dict]:
         for r in c.execute('SELECT * FROM dispute_loss_records'):losses[r['transaction_id']]+=r['amount_paise']
     fees=records('fees',path);refunds=records('refunds',path)
     results=[]
+    source=flow_data(path)
     for tx in records('transactions',path):
-        contract=contracts[tx['id']];f=flow(tx['id'],path)
+        contract=contracts[tx['id']];f=flow(tx['id'],path,source=source)
         actual=sum(r['amount_paise'] for r in fees if r['transaction_id']==tx['id'])
         over_refund=max(0,sum(r['amount_paise'] for r in refunds if r['transaction_id']==tx['id'])-tx['amount_paise'])
         fee_excess=max(0,actual-contract['expected_paid_paise'])

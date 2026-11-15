@@ -4,7 +4,9 @@ test('money flow searches an actual synthetic transaction',async({page})=>{
  const transactions=await (await page.request.get('/api/transactions')).json();
  await page.getByRole('navigation').getByRole('button',{name:'Money Flow',exact:true}).click();
  await page.getByLabel('Transaction ID',{exact:true}).fill(transactions[0].id);
+ const result=page.waitForResponse(r=>r.url().includes('/api/money-flow/'+transactions[0].id));
  await page.getByRole('button',{name:'Track money flow'}).click();
+ expect((await result).status()).toBe(200);
  await expect(page.getByRole('cell',{name:'AUTHORIZATION',exact:true})).toBeVisible();
  await expect(page.getByRole('cell',{name:'CLEARING',exact:true})).toBeVisible();
 });
@@ -37,4 +39,10 @@ test('BIN and routing advice remain human-only',async({page})=>{
  await expect(page.getByRole('heading',{name:'Synthetic BIN and issuer intelligence'})).toBeVisible();
  await page.getByRole('button',{name:'Queue routing suggestions'}).click();
  await expect(page.getByRole('status').filter({hasText:'Human approval is required; no route changed.'})).toBeVisible();
+});
+test('earned autonomy displays measured quality and approved-only changes',async({page})=>{
+ await page.goto('/');await page.getByRole('navigation').getByRole('button',{name:'Earned Autonomy',exact:true}).click();
+ await page.getByRole('button',{name:'Assess measured quality'}).click();
+ await expect(page.getByRole('status').filter({hasText:'Approve proposals in Review Queue.'})).toBeVisible({timeout:60000});
+ await expect(page.getByText(/No automatic increase in autonomy/).first()).toBeVisible();
 });

@@ -45,17 +45,25 @@ def backfill(path=None) -> None:
         ensure_incidents(conn)
         from backend.routing import backfill as backfill_routes
         backfill_routes(conn)
+        from backend.earned_autonomy import ensure as ensure_autonomy
+        ensure_autonomy(conn)
 
 
-def flow(transaction_id: str, path=None) -> dict:
-    tx=next((t for t in records('transactions',path) if t['id']==transaction_id),None)
+def flow_data(path=None) -> dict:
+    tables={name:records(name,path) for name in ('transactions','settlements','refunds','fees','disputes')}
+    with connect(path) as c:tables['events']=[dict(r) for r in c.execute('SELECT * FROM lifecycle_events ORDER BY occurred_at,stage')]
+    return tables
+
+
+def flow(transaction_id: str, path=None, *, source: dict | None = None) -> dict:
+    source=source if source is not None else flow_data(path)
+    tx=next((t for t in source['transactions'] if t['id']==transaction_id),None)
     if tx is None:raise LookupError('Synthetic transaction not found')
-    with connect(path) as conn:
-        events=[dict(r) for r in conn.execute('SELECT * FROM lifecycle_events WHERE transaction_id=? ORDER BY occurred_at,stage',(transaction_id,))]
-    matched,method,_=match(tx,records('settlements',path))
-    refunds=[r for r in records('refunds',path) if r['transaction_id']==transaction_id]
-    fees=[r for r in records('fees',path) if r['transaction_id']==transaction_id]
-    disputes=[r for r in records('disputes',path) if r['transaction_id']==transaction_id]
+    events=[dict(r) for r in source['events'] if r['transaction_id']==transaction_id]
+    matched,method,_=match(tx,source['settlements'])
+    refunds=[r for r in source['refunds'] if r['transaction_id']==transaction_id]
+    fees=[r for r in source['fees'] if r['transaction_id']==transaction_id]
+    disputes=[r for r in source['disputes'] if r['transaction_id']==transaction_id]
     authorization=next((e['amount_paise'] for e in events if e['stage']=='AUTHORIZATION'),None)
     clearing=next((e['amount_paise'] for e in events if e['stage']=='CLEARING'),None)
     settled=sum(s['amount_paise'] for s in matched)
@@ -85,7 +93,8 @@ def flow(transaction_id: str, path=None) -> dict:
 
 
 def flow_summary(path=None) -> dict:
-    items=[flow(t['id'],path) for t in records('transactions',path)]
+    source=flow_data(path)
+    items=[flow(t['id'],path,source=source) for t in source['transactions']]
     def group(key):
         grouped={}
         for item in items:

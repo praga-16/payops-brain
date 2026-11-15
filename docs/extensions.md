@@ -21,3 +21,5 @@ Phase 4: four append-only incident scenarios, routed by existing agents/gate wit
 Phase 5: immutable original 512/608 holdout replay and threshold curve, mandatory gates and Wilson intervals. 131 Python tests passed (one Docker skip), 5 extension browser tests, build and smoke passed. No policy or operational audit data changes during replay.
 
 Phase 6: tokenized synthetic BIN/issuer diagnostics, Fisher tests and minimum samples; contextual LinUCB with bounded shifts and human-only ROUTING_CHANGE Decisions. 133 Python tests passed (one Docker skip), 6 extension browser tests, build and smoke passed. Statistical outlier test uses 512 payments to meet the unchanged sample guardrail.
+
+Phase 7: review/holdout quality, Wilson-aware proposals, transactional human-approved type limits and review/evaluation-triggered safer-only rollback. 134 Python tests passed (one Docker skip), 7 extension browser tests, build and smoke passed. Historical predictions remain unchanged; restricted actions never become automatic. Report reads were batched after a slow browser lookup was observed.
