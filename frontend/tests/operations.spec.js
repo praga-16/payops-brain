@@ -26,3 +26,9 @@ test('live incident creates real synthetic cases',async({page})=>{
  await page.getByRole('button',{name:'upi bank outage',exact:true}).click();
  await expect(page.getByRole('status').filter({hasText:'Synthetic incident processed: upi-bank-outage.'})).toBeVisible({timeout:60000});
 });
+test('what-if slider shows a read-only measured curve',async({page})=>{
+ await page.goto('/');await page.getByRole('navigation').getByRole('button',{name:'What-if Autonomy',exact:true}).click();
+ const slider=page.getByRole('slider');await slider.fill('0.80');
+ await expect(page.getByRole('img',{name:'Synthetic autonomy versus human review curve'})).toBeVisible({timeout:60000});
+ await expect(page.getByText(/Restricted actions remain human-only at every threshold/)).toBeVisible();
+});

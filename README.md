@@ -30,6 +30,13 @@ accepts an optional deterministic seed and batch size. Existing agents process
 the batch; queue/activity polling reflects actual new decisions. These controls
 change no bank, fee contract, routing policy or payment processing setting.
 
+What-if Autonomy replays the original 512-transaction/608-case holdout at thresholds
+0.70–0.99 via `GET /api/autonomy/replay?threshold=.95`. The slider and curve show
+auto/review counts, false auto-resolutions and Wilson intervals. The replay uses
+temporary data and a cached sample; it changes no ledger, policy or audit record.
+All restricted actions remain human-only. New fee/routing agents are explicitly
+excluded from this original three-agent denominator.
+
 **A synthetic payment operations control tower: one ledger, reviewable agents, human financial control.**
 
 Paytm Build for India AI Hackathon - Track 3: Autonomous AI Teammates.

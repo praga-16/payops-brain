@@ -1,10 +1,16 @@
 """Additive synthetic intelligence routes; no existing API is replaced."""
-from fastapi import APIRouter
+from fastapi import APIRouter,Query
 from pydantic import BaseModel,Field
 from backend.api import guarded
 from backend.moneyflow import flow, flow_summary
 
 router=APIRouter(prefix='/api')
+
+
+@router.get('/autonomy/replay')
+def autonomy_replay(threshold: float = Query(default=.95,ge=.70,le=.99)):
+    from backend.autonomy_replay import replay
+    return replay(threshold)
 
 
 class IncidentBody(BaseModel):
