@@ -72,3 +72,11 @@ the recorded calibrator; historical cases are not silently rewritten.
 
 Sarvam live text integration check succeeded on 2026-11-15 using sarvam-105b.
 The key remains only in ignored .env. Ordinary pytest continues in mock mode.
+
+## Phase 6
+
+Merchant assistant computes scoped gross/fees/net, missing/short/duplicate counts
+and dispute counts in Python before provider composition. English, Hindi and
+Tamil templates share the same computed fact object. Unknown merchants, unsupported
+questions and settlement-time predictions route to an analyst. Free-form financial
+generation is deliberately unavailable. 111 tests passed; original smoke passed.

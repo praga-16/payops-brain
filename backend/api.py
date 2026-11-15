@@ -8,6 +8,7 @@ from backend.decision import AgentAction
 from backend.ledger import connect
 from backend.review import queue, review_case, kill_switch
 from backend.feedback import recalibrate
+from backend.merchant import chat
 
 router=APIRouter(prefix='/api')
 
@@ -20,6 +21,18 @@ class ReviewBody(BaseModel):
 
 class KillBody(BaseModel):
     confirmed: bool = False
+
+
+class ChatBody(BaseModel):
+    merchant_id: str = Field(pattern=r'^SYN-M\d{3}$')
+    question: str = Field(min_length=1,max_length=2000)
+    language: str = Field(default='en',pattern=r'^(en|hi|ta)$')
+    transaction_id: str | None = Field(default=None,max_length=120)
+
+
+@router.post('/merchant-assistant/chat')
+def merchant_chat(body: ChatBody):
+    return chat(body.merchant_id,body.question,body.language,transaction_id=body.transaction_id)
 
 
 def guarded(fn, *args, **kwargs):
