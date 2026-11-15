@@ -28,6 +28,8 @@ def run_agents(path=None) -> dict:
                 'fraud':persist_alerts(fraud,path)}
         from backend.margins import fee_audit
         counts['fee_audit']=persist(fee_audit(path),path)
+        from backend.routing import routing_report
+        counts['routing']=persist(routing_report(path)['proposals'],path)
         with connect(path) as conn:
             audit.append(conn,'AGENT_BATCH_COMPLETED','control-tower',{'created':counts,'provider':'local evidence computation'})
         logger.info(json.dumps({'event':'agent_batch_completed','created':counts}))

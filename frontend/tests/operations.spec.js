@@ -32,3 +32,9 @@ test('what-if slider shows a read-only measured curve',async({page})=>{
  await expect(page.getByRole('img',{name:'Synthetic autonomy versus human review curve'})).toBeVisible({timeout:60000});
  await expect(page.getByText(/Restricted actions remain human-only at every threshold/)).toBeVisible();
 });
+test('BIN and routing advice remain human-only',async({page})=>{
+ await page.goto('/');await page.getByRole('navigation').getByRole('button',{name:'BIN & Routing',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Synthetic BIN and issuer intelligence'})).toBeVisible();
+ await page.getByRole('button',{name:'Queue routing suggestions'}).click();
+ await expect(page.getByRole('status').filter({hasText:'Human approval is required; no route changed.'})).toBeVisible();
+});

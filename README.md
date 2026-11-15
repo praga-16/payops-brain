@@ -37,6 +37,15 @@ temporary data and a cached sample; it changes no ledger, policy or audit record
 All restricted actions remain human-only. New fee/routing agents are explicitly
 excluded from this original three-agent denominator.
 
+BIN & Routing groups synthetic token/BIN/issuer authorization results, declines,
+disputes, fraud flags and fee cost. Fisher tests use explicit minimum sample sizes
+and Bonferroni adjustment. Historical captured authorizations are inferred approved;
+no external issuer telemetry is claimed. Contextual LinUCB learns success/cost from
+separately seeded counterfactual route trials. `ROUTING_MIN_SAMPLES` (30) and
+`ROUTING_MAX_TRAFFIC_SHIFT` (.10, at most .25) bound suggestions. Uplift during an
+injected outage is a simulated weighted estimate, not a measured production gain.
+ROUTING_CHANGE always requires expert human approval, which records advice only.
+
 **A synthetic payment operations control tower: one ledger, reviewable agents, human financial control.**
 
 Paytm Build for India AI Hackathon - Track 3: Autonomous AI Teammates.

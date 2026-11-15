@@ -43,6 +43,8 @@ def backfill(path=None) -> None:
         ensure(conn)
         from backend.incidents import ensure as ensure_incidents
         ensure_incidents(conn)
+        from backend.routing import backfill as backfill_routes
+        backfill_routes(conn)
 
 
 def flow(transaction_id: str, path=None) -> dict:

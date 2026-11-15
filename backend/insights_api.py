@@ -7,6 +7,25 @@ from backend.moneyflow import flow, flow_summary
 router=APIRouter(prefix='/api')
 
 
+@router.get('/bin-intelligence')
+def bins():
+    from backend.routing import bin_report
+    return bin_report()
+
+
+@router.get('/routing')
+def routing():
+    from backend.routing import routing_report
+    return routing_report()
+
+
+@router.post('/routing/suggest')
+def suggest_routing():
+    from backend.routing import routing_report
+    from backend.review import persist
+    return {'synthetic':True,'created':persist(routing_report()['proposals']),'routing_executed':False}
+
+
 @router.get('/autonomy/replay')
 def autonomy_replay(threshold: float = Query(default=.95,ge=.70,le=.99)):
     from backend.autonomy_replay import replay

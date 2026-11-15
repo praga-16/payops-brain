@@ -11,7 +11,7 @@ def save_result(conn, result: dict) -> bool:
     decision=Decision.model_validate(result['decision'])
     # All agents must cite real operational rows; no opaque model citations.
     available={result['transaction_id']}
-    for table in ('transactions','settlements','refunds','fees','disputes'):
+    for table in ('transactions','settlements','refunds','fees','disputes','route_observations'):
         if table=='transactions':continue
         available.update(row[0] for row in conn.execute(f'SELECT id FROM {table} WHERE transaction_id=?',
                                                        (result['transaction_id'],)))

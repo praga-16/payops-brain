@@ -19,3 +19,5 @@ Phase 3: reporting-only rupee impact, label coverage, recovery ledger, expected 
 Phase 4: four append-only incident scenarios, routed by existing agents/gate with incident audit/activity events. 130 Python tests passed (one Docker skip), 4 extension browser tests, build and smoke passed. Duplicate-file reference generation was corrected after an invariant test found hidden duplicates.
 
 Phase 5: immutable original 512/608 holdout replay and threshold curve, mandatory gates and Wilson intervals. 131 Python tests passed (one Docker skip), 5 extension browser tests, build and smoke passed. No policy or operational audit data changes during replay.
+
+Phase 6: tokenized synthetic BIN/issuer diagnostics, Fisher tests and minimum samples; contextual LinUCB with bounded shifts and human-only ROUTING_CHANGE Decisions. 133 Python tests passed (one Docker skip), 6 extension browser tests, build and smoke passed. Statistical outlier test uses 512 payments to meet the unchanged sample guardrail.

@@ -72,7 +72,9 @@ def agents_run():
 def agents():
     return [{'name':'reconciliation','implementation':'reference rules + gradient boosting','mode':'local'},
             {'name':'dispute','implementation':'evidence checklist + logistic win estimate','mode':'local; provider draft on request'},
-            {'name':'fraud','implementation':'Isolation Forest + velocity/refund rules','mode':'local'}]
+            {'name':'fraud','implementation':'Isolation Forest + velocity/refund rules','mode':'local'},
+            {'name':'fee_audit','implementation':'fee contracts + rail sample outliers','mode':'local'},
+            {'name':'routing','implementation':'contextual LinUCB; suggestions only','mode':'local'}]
 
 
 @router.get('/agents/activity')
@@ -154,7 +156,7 @@ def case_file(case_id: str):
 def case_evidence(case_id: str):
     case=case_file(case_id)
     ids=set(case['decision']['evidence'])
-    return [{'table':table,**row} for table in ('transactions','settlements','refunds','fees','disputes')
+    return [{'table':table,**row} for table in ('transactions','settlements','refunds','fees','disputes','route_observations')
             for row in records(table) if row['id'] in ids]
 
 

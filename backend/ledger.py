@@ -108,7 +108,7 @@ def initialize(path: Path | str | None = None) -> None:
 
 
 def records(table: str, path: Path | str | None = None) -> list[dict]:
-    allowed = {'transactions', 'settlements', 'refunds', 'disputes', 'fees', 'merchant_profiles'}
+    allowed = {'transactions', 'settlements', 'refunds', 'disputes', 'fees', 'merchant_profiles','route_observations'}
     if table not in allowed:
         raise ValueError('Not an operational ledger table')
     with connect(path) as conn:
