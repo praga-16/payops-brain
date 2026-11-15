@@ -12,3 +12,6 @@ uploads/
 .playwright/
 .npm-cache/
 log/
+runtime/
+test-results/
+playwright-report/
