@@ -37,3 +37,15 @@ candidates; ambiguous candidates are reviewed. Seven break classes use ledger
 invariants. Prediction persistence verifies cited IDs and ledger amounts before
 creating queue/audit rows. 91 tests passed; original smoke passed; /health remained
 available. No operational ground-truth labels are read by inference.
+
+## Phase 3
+
+Original LangGraph gains an additive intelligence result without changing its
+six-step evidence trace. Unified chargebacks have reason codes, weighted evidence
+checklists, deadlines, fight/accept recommendations and a logistic win model
+trained on 2,000 separate synthetic outcomes (seed 732). Evidence confidence and
+win probability are distinct. Checklist weights are .20 reference, .18 settlement,
+.16 authentication, .16 delivery, .12 deadline, .18 signed receipt; the last is
+explicitly missing. No score is forced for the demo. Sarvam/Meta/local provider
+selection composes only approved sentences and falls back safely. 100 tests passed,
+including stubbed rate-limit/error/hallucination paths; original smoke passed.

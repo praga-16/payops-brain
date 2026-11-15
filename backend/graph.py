@@ -33,6 +33,7 @@ class CaseState(TypedDict, total=False):
     run_id: str
     completed_at: str
     redacted: dict
+    intelligence: dict
 
 
 def trace_step(name, fn, *, model=False):
@@ -110,7 +111,14 @@ steps = ['extract', 'match', 'rules', 'redact', 'draft', 'verify']
 builder.add_edge(START, steps[0])
 for left, right in zip(steps, steps[1:]):
     builder.add_edge(left, right)
-builder.add_edge(steps[-1], END)
+def intelligence(state):
+    from backend.dispute_intelligence import legacy_intelligence
+    return {'intelligence': legacy_intelligence(state)}
+
+
+builder.add_node('dispute_intelligence', intelligence)
+builder.add_edge(steps[-1], 'dispute_intelligence')
+builder.add_edge('dispute_intelligence', END)
 graph = builder.compile()
 
 

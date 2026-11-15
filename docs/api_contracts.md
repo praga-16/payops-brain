@@ -1,5 +1,14 @@
 # API verification log
 
+Sarvam contract checked against https://docs.sarvam.ai/api-reference/chat/chat-completions-v1
+and https://docs.sarvam.ai/api-reference/authentication on 2026-11-15:
+`POST https://api.sarvam.ai/v1/chat/completions`, `api-subscription-key` header,
+`sarvam-105b`, messages, choices[0].message.content. Sarvam-M is deprecated.
+The new adapter has mocked HTTP tests; no credentialed Sarvam call has been made.
+Generated sentences must be an exact permutation of approved computed-fact
+sentences; otherwise a labeled local fallback is returned. This deliberately
+limits creative generation and translation to protect factual integrity.
+
 Checked official sources on 2026-11-04. Documentation verification does not mean a
 credentialed request succeeded. No credentials were supplied at build time.
 
