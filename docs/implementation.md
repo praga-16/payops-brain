@@ -49,3 +49,10 @@ win probability are distinct. Checklist weights are .20 reference, .18 settlemen
 explicitly missing. No score is forced for the demo. Sarvam/Meta/local provider
 selection composes only approved sentences and falls back safely. 100 tests passed,
 including stubbed rate-limit/error/hallucination paths; original smoke passed.
+
+## Phase 4
+
+Fraud combines an Isolation Forest trained on 800 separate synthetic normal
+feature vectors (seed 991) with per-merchant 60-second velocity, refund ratio,
+device risk and merchant amount deviations. Alerts cite transactions/refunds and
+never disable processing. 102 tests passed; original smoke and health passed.
